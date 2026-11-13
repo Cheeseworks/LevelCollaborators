@@ -10,18 +10,15 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 project(LevelCollaborators VERSION 1.0.0)
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
+set(CW_ENABLE_WEB ON CACHE BOOL "" FORCE)
 
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include)
-
-if(PROJECT_IS_TOP_LEVEL)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE CW_LEVELCOLLAB_API_EXPORTING)
-endif()
+target_include_directories(${PROJECT_NAME} PRIVATE src include)
 
 if(NOT DEFINED ENV{GEODE_SDK})
-    message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
+    message(FATAL_ERROR "Unable to find Geode SDK! Please define the GEODE_SDK environment variable to point to Geode.")
 else()
     message(STATUS "Found Geode: $ENV{GEODE_SDK}")
 endif()
@@ -30,5 +27,10 @@ add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
 setup_geode_mod(${PROJECT_NAME})
 
-CPMAddPackage("gh:GlobedGD/argon@1.4.6")
-target_link_libraries(${PROJECT_NAME} argon)
+option(CW_TESTING "Enable local testing mode" ON)
+if(CW_TESTING)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE CW_TESTING=1)
+endif()
+
+CPMAddPackage("gh:Cheeseworks/rhatts-geode-sillies#main")
+target_link_libraries(${PROJECT_NAME} rhatt)

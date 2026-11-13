@@ -4,7 +4,7 @@
 
 #include <Geode/Geode.hpp>
 
-namespace levelcollab {
+namespace cw::levelcollab {
     class CollabPopup final : public geode::Popup {
     protected:
         bool init(GJGameLevel* level, std::weak_ptr<Collaboration> const& collab);

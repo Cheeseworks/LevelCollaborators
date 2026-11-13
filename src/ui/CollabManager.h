@@ -2,6 +2,6 @@
 
 #include <Geode/Geode.hpp>
 
-namespace levelcollab {
+namespace cw::levelcollab {
     class CollabManager final : public cocos2d::CCLayer {};
 };

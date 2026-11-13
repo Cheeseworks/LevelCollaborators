@@ -2,7 +2,7 @@
 
 #include <Geode/Geode.hpp>
 
-namespace levelcollab {
+namespace cw::levelcollab {
     class CollabViewer final : public geode::Popup {
     protected:
         bool init(GJGameLevel* level);

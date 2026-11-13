@@ -1,13 +1,13 @@
 #pragma once
 
 #ifdef GEODE_IS_WINDOWS
-#ifdef CW_LEVELCOLLAB_API_EXPORTING
+#ifdef LevelCollaborators_EXPORTS
 #define CW_LEVELCOLLAB_API_DLL __declspec(dllexport)
 #else
 #define CW_LEVELCOLLAB_API_DLL __declspec(dllimport)
 #endif
 #else
-#ifdef CW_LEVELCOLLAB_API_EXPORTING
+#ifdef LevelCollaborators_EXPORTS
 #define CW_LEVELCOLLAB_API_DLL __attribute__((visibility("default")))
 #else
 #define CW_LEVELCOLLAB_API_DLL
@@ -18,9 +18,9 @@
 
 #include <Geode/Bindings.hpp>
 
-namespace levelcollab {
+namespace cw::levelcollab {
     // Type of work a collaborator did
-    enum class CollaboratorType : unsigned int {
+    enum class CollaboratorType : uint8_t {
         SpecialThanks = 0,  // Thank them for being there, or did miscellaneous work!
         Playtesting = 1,    // Tested the level for bugs and gameplay quality
         Optimization = 2,   // Optimized groups and/or objects
@@ -48,7 +48,8 @@ namespace levelcollab {
             int color1,
             int color2,
             int glow,
-            bool useGlow);
+            bool useGlow
+        );
 
         static CollaboratorIcon create(int icon, IconType type, int color1, int color2, int glow, bool useGlow);
 
@@ -74,7 +75,8 @@ namespace levelcollab {
             std::string name,
             int accountID,
             CollaboratorIcon icon,
-            CollaboratorType type);
+            CollaboratorType type
+        );
 
         static Collaborator create(std::string name, int accountID, CollaboratorIcon icon, CollaboratorType type);
         static void createAsync(int accountID, CollaboratorType type, geode::CopyableFunction<void(geode::Result<Collaborator>)> callback);
@@ -97,7 +99,8 @@ namespace levelcollab {
         Collaboration(
             int levelID,
             Collaborator owner,
-            std::vector<Collaborator> collaborators);
+            std::vector<Collaborator> collaborators
+        );
 
         static std::shared_ptr<Collaboration> create(int levelID, Collaborator owner, std::vector<Collaborator> collaborators);
 

@@ -5,7 +5,7 @@
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
-using namespace levelcollab;
+using namespace cw::levelcollab;
 
 bool CollabPopup::init(GJGameLevel* level, std::weak_ptr<Collaboration> const& collab) {
     if (!Popup::init({350.f, 225.f})) return false;

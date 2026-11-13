@@ -1,10 +1,10 @@
 {
-    "geode": "5.0.0",
+    "geode": "6.0.0-alpha.1",
     "gd": {
-        "win": "2.2081",
-        "android": "2.2081",
-        "mac": "2.2081",
-        "ios": "2.2081"
+        "win": "2.2091",
+        "android": "2.2091",
+        "mac": "2.2091",
+        "ios": "2.2091"
     },
     "id": "cheeseworks.levelcollaborators",
     "name": "Level Collaborators",
@@ -29,7 +29,8 @@
         ]
     },
     "dependencies": {
-        "geode.node-ids": ">=1.22.0-beta.2"
+        "geode.node-ids": ">=1.23.0",
+        "dankmeme.argon": ">=2.0.0-alpha.1"
     },
     "early-load": false
 }
