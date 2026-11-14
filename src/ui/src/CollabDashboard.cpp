@@ -52,10 +52,10 @@ bool CollabDashboard::init() {
     title->setID("view-mod-info-btn");
     title->setScaleMultiplier(1.125f);
 
-    addChildAtPosition(title, Anchor::Top, { 0.f, -1.f * (title->getScaledContentHeight() * 0.875f) }, false);
+    addChildAtPosition(title, Anchor::Top, { 0.0f, -1.0f * (title->getScaledContentHeight() * 0.875f) }, false);
 
     auto btnContainerLayout = ColumnLayout::create()
-                                  ->setGap(5.f)
+                                  ->setGap(5.0f)
                                   ->setAutoScale(false)
                                   ->setAutoGrowAxis(1.25f)
                                   ->setAxisReverse(true);
