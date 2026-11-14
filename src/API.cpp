@@ -48,7 +48,7 @@ int CollaboratorIcon::getGlow() const noexcept {
     return m_glow;
 }
 
-bool CollaboratorIcon::isUseGlow() const noexcept {
+bool CollaboratorIcon::useGlow() const noexcept {
     return m_useGlow;
 }
 
@@ -59,8 +59,8 @@ SimplePlayer* CollaboratorIcon::createIcon() const {
         player->setColor(gm->colorForIdx(getColor1()));
         player->setSecondColor(gm->colorForIdx(getColor2()));
 
-        if (isUseGlow()) player->setGlowOutline(gm->colorForIdx(getGlow()));
-        if (!isUseGlow()) player->disableGlowOutline();
+        if (useGlow()) player->setGlowOutline(gm->colorForIdx(getGlow()));
+        if (!useGlow()) player->disableGlowOutline();
 
         return player;
     };
@@ -125,21 +125,24 @@ Collaboration::Collaboration(
     m_owner(std::move(owner)),
     m_collaborators(std::move(collaborators)) {}
 
-std::shared_ptr<Collaboration> Collaboration::create(int levelID, Collaborator owner, std::vector<Collaborator> collaborators) {
-    if (auto cm = CollaborationManager::get()) {
-        log::trace("Checking for pre-existing collaboration for level {}", levelID);
-        if (auto c = cm->getCollab(levelID).lock()) return c;
+Collaboration Collaboration::create(int levelID, Collaborator owner, std::vector<Collaborator> collaborators) {
+    auto cm = CollaborationManager::get();
 
-        log::debug("Creating new collaboration for level {} with {} creators", levelID, collaborators.size());
+#ifdef CW_TESTING
+    log::trace("Checking for pre-existing collaboration for level {}", levelID);
+#endif
 
-        auto c = std::make_shared<Collaboration>(levelID, std::move(owner), std::move(collaborators));
-        cm->registerCollab(c);
+    auto cRes = cm->getCollab(levelID);
+    if (cRes.isOk()) return std::move(cRes).unwrap();
 
-        return c;
-    };
+#ifdef CW_TESTING
+    log::debug("Creating new collaboration for level {} with {} creators", levelID, collaborators.size());
+#endif
 
-    log::error("State manager not available");
-    return nullptr;
+    auto c = Collaboration{ levelID, std::move(owner), std::move(collaborators) };
+    cm->registerCollab(c);
+
+    return c;
 }
 
 int Collaboration::getLevelID() const noexcept {
@@ -162,7 +165,7 @@ GJGameLevel* Collaboration::getLevel() const {
 std::string Collaboration::getFormattedString(bool prefix) const {
     std::string out;
 
-    auto owner = getOwner();
+    auto const& owner = getOwner();
 
     if (getCollaborators().size() > 2) {
         out = fmt::format("{}{} & {} more", prefix ? "By " : "", owner.getName(), getCollaborators().size() - 1);
@@ -179,28 +182,40 @@ std::string Collaboration::getFormattedString(bool prefix) const {
     return out;
 }
 
-void CollaborationManager::registerCollab(std::shared_ptr<Collaboration> collab) {
-    m_collaborations[collab->getLevelID()] = collab;
+struct CollaborationManager::Impl final {
+    std::unordered_map<int, Collaboration> collaborations;
+};
+
+CollaborationManager::CollaborationManager() : m_impl(std::make_unique<Impl>()) {}
+CollaborationManager::~CollaborationManager() = default;
+
+void CollaborationManager::registerCollab(Collaboration collab) {
+    m_impl->collaborations[collab.getLevelID()] = std::move(collab);
 }
 
-std::weak_ptr<Collaboration> CollaborationManager::getCollab(int levelID) const noexcept {
-    if (auto it = m_collaborations.find(levelID); it != m_collaborations.end()) return it->second;
-    return std::weak_ptr<Collaboration>();
+Result<Collaboration> CollaborationManager::getCollab(int levelID) const noexcept {
+    if (auto it = m_impl->collaborations.find(levelID); it != m_impl->collaborations.end()) return Ok(it->second);
+    return Err("Collaboration not found");
 }
 
-std::vector<std::weak_ptr<Collaboration>> CollaborationManager::getCollabs() const noexcept {
-    std::vector<std::weak_ptr<Collaboration>> out;
-    out.reserve(m_collaborations.size());
+std::vector<Collaboration> CollaborationManager::getCollabs() const noexcept {
+    std::vector<Collaboration> out;
+    out.reserve(m_impl->collaborations.size());
 
-    for (auto const& collab : m_collaborations) out.push_back(collab.second);
+    for (auto const& collab : m_impl->collaborations) out.push_back(collab.second);
     return out;
 }
 
-std::weak_ptr<Collaboration> CollaborationManager::getCollabForLevel(int levelID) const noexcept {
+geode::Result<Collaboration> CollaborationManager::getCollabForLevel(int levelID) const noexcept {
     return getCollab(levelID);
 }
 
-void cw::levelcollab::requestCollabForLevel(int levelID, CopyableFunction<void(std::weak_ptr<Collaboration>)>&& callback) {
+CollaborationManager* CollaborationManager::get() noexcept {
+    static CollaborationManager inst;
+    return &inst;
+}
+
+void cw::levelcollab::requestCollabForLevel(int levelID, CopyableFunction<void(Collaboration)>&& callback) {
 }
 
 void cw::levelcollab::getCollaboratorInfo(int accountID, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {
@@ -218,7 +233,9 @@ void cw::levelcollab::getCollaboratorInfo(int accountID, CopyableFunction<void(R
                 return cb(Err("An error occurred while fetching user information"));
             };
 
+#ifdef CW_TESTING
             log::debug("Received response: {}", resStr);
+#endif
 
             auto dict = CCDictionary::create();
             auto splits = asp::iter::split(resStr, ":")  // owo
@@ -229,11 +246,6 @@ void cw::levelcollab::getCollaboratorInfo(int accountID, CopyableFunction<void(R
             cb(Ok(GJUserScore::create(dict)));
         }
     );
-}
-
-CollaborationManager* CollaborationManager::get() noexcept {
-    static CollaborationManager inst;
-    return &inst;
 }
 
 void fetch::getUserByUsername(std::string_view username, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {
@@ -251,7 +263,9 @@ void fetch::getUserByUsername(std::string_view username, CopyableFunction<void(R
                 return cb(Err("An error occurred while fetching user information"));
             };
 
+#ifdef CW_TESTING
             log::debug("Received response: {}", resStr);
+#endif
 
             auto dict = CCDictionary::create();
             auto splits = asp::iter::split(resStr, ":")

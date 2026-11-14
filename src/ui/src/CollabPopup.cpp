@@ -7,7 +7,7 @@
 using namespace geode::prelude;
 using namespace cw::levelcollab;
 
-bool CollabPopup::init(GJGameLevel* level, std::weak_ptr<Collaboration> const& collab) {
+bool CollabPopup::init(GJGameLevel* level, Collaboration const& collab) {
     if (!Popup::init({ 350.0f, 225.0f })) return false;
 
     setID("collaboration"_spr);
@@ -27,7 +27,7 @@ bool CollabPopup::init(GJGameLevel* level, std::weak_ptr<Collaboration> const& c
     return true;
 }
 
-CollabPopup* CollabPopup::create(GJGameLevel* level, std::weak_ptr<Collaboration> const& collab) {
+CollabPopup* CollabPopup::create(GJGameLevel* level, Collaboration const& collab) {
     auto ret = new CollabPopup();
     if (ret->init(level, collab)) {
         ret->autorelease();

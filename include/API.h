@@ -1,18 +1,6 @@
 #pragma once
 
-#ifdef GEODE_IS_WINDOWS
-#ifdef LevelCollaborations_EXPORTS
-#define CW_LEVELCOLLAB_API_DLL __declspec(dllexport)
-#else
-#define CW_LEVELCOLLAB_API_DLL __declspec(dllimport)
-#endif
-#else
-#ifdef LevelCollaborators_EXPORTS
-#define CW_LEVELCOLLAB_API_DLL __attribute__((visibility("default")))
-#else
-#define CW_LEVELCOLLAB_API_DLL
-#endif
-#endif
+#include "DLL.hpp"
 
 #include <Geode/Result.hpp>
 
@@ -41,7 +29,7 @@ namespace cw::levelcollab {
         int m_glow;
         bool m_useGlow;
 
-    public:
+    protected:
         CollaboratorIcon(
             int icon,
             IconType type,
@@ -51,6 +39,9 @@ namespace cw::levelcollab {
             bool useGlow
         );
 
+    public:
+        CollaboratorIcon() = default;
+
         static CollaboratorIcon create(int icon, IconType type, int color1, int color2, int glow, bool useGlow);
 
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getIcon() const noexcept;
@@ -58,7 +49,7 @@ namespace cw::levelcollab {
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getColor1() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getColor2() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getGlow() const noexcept;
-        [[nodiscard]] CW_LEVELCOLLAB_API_DLL bool isUseGlow() const noexcept;
+        [[nodiscard]] CW_LEVELCOLLAB_API_DLL bool useGlow() const noexcept;
 
         CW_LEVELCOLLAB_API_DLL SimplePlayer* createIcon() const;
     };
@@ -70,13 +61,16 @@ namespace cw::levelcollab {
         CollaboratorIcon m_icon;
         CollaboratorType m_type;
 
-    public:
+    protected:
         Collaborator(
             std::string name,
             int accountID,
             CollaboratorIcon icon,
             CollaboratorType type
         );
+
+    public:
+        Collaborator() = default;
 
         static Collaborator create(std::string name, int accountID, CollaboratorIcon icon, CollaboratorType type);
         static void createAsync(int accountID, CollaboratorType type, geode::CopyableFunction<void(geode::Result<Collaborator>)> callback);
@@ -95,14 +89,17 @@ namespace cw::levelcollab {
         Collaborator m_owner;
         std::vector<Collaborator> m_collaborators;
 
-    public:
+    protected:
         Collaboration(
             int levelID,
             Collaborator owner,
             std::vector<Collaborator> collaborators
         );
 
-        static std::shared_ptr<Collaboration> create(int levelID, Collaborator owner, std::vector<Collaborator> collaborators);
+    public:
+        Collaboration() = default;
+
+        static Collaboration create(int levelID, Collaborator owner, std::vector<Collaborator> collaborators);
 
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getLevelID() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL Collaborator const& getOwner() const noexcept;
@@ -117,11 +114,12 @@ namespace cw::levelcollab {
         friend class Collaborator;
 
     private:
-        std::unordered_map<int, std::shared_ptr<Collaboration>> m_collaborations;
+        struct Impl;
+        std::unique_ptr<Impl> m_impl;
 
     protected:
-        CollaborationManager() = default;
-        ~CollaborationManager() = default;
+        CollaborationManager();
+        ~CollaborationManager();
 
         CollaborationManager(const CollaborationManager&) = delete;
         CollaborationManager& operator=(const CollaborationManager&) = delete;
@@ -129,18 +127,18 @@ namespace cw::levelcollab {
         CollaborationManager(CollaborationManager&&) = delete;
         CollaborationManager& operator=(CollaborationManager&&) = delete;
 
-        void registerCollab(std::shared_ptr<Collaboration> collab);
+        void registerCollab(Collaboration collab);
 
-        std::weak_ptr<Collaboration> getCollab(int levelID) const noexcept;
+        geode::Result<Collaboration> getCollab(int levelID) const noexcept;
 
     public:
         static CollaborationManager* get() noexcept;
 
-        std::vector<std::weak_ptr<Collaboration>> getCollabs() const noexcept;
+        std::vector<Collaboration> getCollabs() const noexcept;
 
-        std::weak_ptr<Collaboration> getCollabForLevel(int levelID) const noexcept;
+        geode::Result<Collaboration> getCollabForLevel(int levelID) const noexcept;
     };
 
-    CW_LEVELCOLLAB_API_DLL void requestCollabForLevel(int levelID, geode::CopyableFunction<void(std::weak_ptr<Collaboration>)>&& callback);
+    CW_LEVELCOLLAB_API_DLL void requestCollabForLevel(int levelID, geode::CopyableFunction<void(Collaboration)>&& callback);
     CW_LEVELCOLLAB_API_DLL void getCollaboratorInfo(int accountID, geode::CopyableFunction<void(geode::Result<GJUserScore*>)>&& callback);
 };

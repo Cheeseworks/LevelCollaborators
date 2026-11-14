@@ -10,7 +10,7 @@
 
 namespace cw::levelcollab {
     namespace manager {  // very wip
-        void requestCollabUpsert(int levelID, std::weak_ptr<Collaboration> collab, geode::CopyableFunction<void(bool success, std::string const& message)>&& callback = nullptr);
+        void requestCollabUpsert(int levelID, Collaboration collab, geode::CopyableFunction<void(bool success, std::string const& message)>&& callback = nullptr);
     };
 
     namespace fetch {

@@ -69,15 +69,18 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
 
         auto cm = CollaborationManager::get();
 
-        if (auto const collab = cm->getCollabForLevel(m_level->m_levelID).lock()) {
+        auto collabRes = cm->getCollabForLevel(m_level->m_levelID);
+        if (collabRes.isOk()) {
+            auto collab = std::move(collabRes).unwrap();
+
             auto creatorMenu = getChildByID("creator-info-menu");
 
-            auto btnLabel = Label::create(collab->getFormattedString(), cw::ui::font::gold);
+            auto btnLabel = Label::create(collab.getFormattedString(), cw::ui::font::gold);
             btnLabel->setLimitLabelWidth(37.5f, 0.75f);
 
             auto btn = Button::createWithNode(
                 btnLabel,
-                [this, collab](auto) {
+                [this, collab = std::move(collab)](auto) {
                     CollabPopup::create(m_level, collab)->show();
                 }
             );
