@@ -6,15 +6,15 @@
         "mac": "2.2091",
         "ios": "2.2091"
     },
-    "id": "cheeseworks.levelcollaborators",
-    "name": "Level Collaborators",
+    "id": "cheeseworks.levelcollab",
+    "name": "Level Collaborations",
     "version": "1.0.0",
     "developers": [
         "Cheeseworks"
     ],
-    "description": "List other creators in your collabs!",
+    "description": "Feature other creators on your levels!",
     "links": {
-        "source": "https://github.com/BlueWitherer/LevelCollaborators",
+        "source": "https://github.com/Cheeseworks/LevelCollaborators",
         "homepage": "https://www.cheeseworks.gay/",
         "community": "https://www.dsc.gg/cheeseworks"
     },

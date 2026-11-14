@@ -1,8 +1,8 @@
 #include <API.h>
 
-#include <Utils.h>
+#include <Util.h>
 
-#include <ui/CollabPopup.h>
+#include <rhatt/prelude.h>
 
 #include <dankmeme.argon/argon.hpp>
 
@@ -10,6 +10,7 @@
 
 #include <Geode/ui/Button.hpp>
 
+#include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/LevelCell.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 
@@ -22,6 +23,38 @@ static auto const cwrks = Collaborator::create("Cheeseworks", 6408873, Collabora
 
 static auto const collaboration = Collaboration::create(104663075, arcwf, { cwrks });
 
+namespace cw::levelcollab {
+    namespace ui {
+        static void addCollabButton(CCNode* menu, bool alt = true) {
+            auto btn = CCMenuItemExt::createSpriteExtra(
+                CircleButtonSprite::createWithSpriteFrameName(
+                    "GJ_sFriendsIcon_001.png",
+                    0.875f,
+                    CircleBaseColor::Green,
+                    alt ? CircleBaseSize::MediumAlt : CircleBaseSize::Medium
+                ),
+                [](auto) {
+                    pushSceneWithLayer(CollabDashboard::create());
+                }
+            );
+            btn->setID("collab-dashboard-btn"_spr);
+
+            menu->addChild(btn);
+            menu->updateLayout();
+        }
+    };
+};
+
+class $modify(LCMenuLayer, MenuLayer) {
+    bool init() {
+        if (!MenuLayer::init()) return false;
+
+        if (auto menu = getChildByID("bottom-menu")) ui::addCollabButton(menu);
+
+        return true;
+    }
+};
+
 // class $modify(LCLevelCell, LevelCell) {
 //     void loadFromLevel(GJGameLevel* level) {
 //         LevelCell::loadFromLevel(level);
@@ -32,32 +65,34 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
     bool init(GJGameLevel* level, bool challenge) {
         if (!LevelInfoLayer::init(level, challenge)) return false;
 
-        if (auto cm = CollaborationManager::get()) {
-            if (auto const collab = cm->getCollabForLevel(m_level->m_levelID).lock()) {
-                auto creatorMenu = getChildByID("creator-info-menu");
+        if (auto menu = getChildByID("left-side-menu")) ui::addCollabButton(menu, false);
 
-                auto btnLabel = CCLabelBMFont::create(collab->getFormattedString().c_str(), "goldFont.fnt");
-                btnLabel->limitLabelWidth(37.5f, 0.75f, 0.75f);
+        auto cm = CollaborationManager::get();
 
-                auto btn = Button::createWithNode(
-                    btnLabel,
-                    [this, collab](auto) {
-                        CollabPopup::create(m_level, collab)->show();
-                    }
-                );
-                btn->setID("collaboration-btn"_spr);
-                btn->setScale(0.75f);
-                btn->setPosition({ creatorMenu->getPositionX(), creatorMenu->getPositionY() + 11.25f });
+        if (auto const collab = cm->getCollabForLevel(m_level->m_levelID).lock()) {
+            auto creatorMenu = getChildByID("creator-info-menu");
 
-                if (auto copyTag = getChildByID("copy-indicator")) {
-                    copyTag->setPositionX((getScaledContentWidth() / 2.f) + (btn->getScaledContentWidth() / 2.f) + 5.f);
-                    if (auto moreTags = getChildByID("raydeeux_thesillydoggo.evenmoreleveltags/more-level-tags-menu")) moreTags->setPositionX(copyTag->getPositionX() + 17.5f);
-                };
+            auto btnLabel = Label::create(collab->getFormattedString(), cw::ui::font::gold);
+            btnLabel->setLimitLabelWidth(37.5f, 0.75f);
 
-                creatorMenu->setVisible(false);
-                addChild(btn);
+            auto btn = Button::createWithNode(
+                btnLabel,
+                [this, collab](auto) {
+                    CollabPopup::create(m_level, collab)->show();
+                }
+            );
+            btn->setID("collaboration-btn"_spr);
+            btn->setScale(0.75f);
+            btn->setPosition({ creatorMenu->getPositionX(), creatorMenu->getPositionY() + 11.25f });
+
+            if (auto copyTag = getChildByID("copy-indicator")) {
+                copyTag->setPositionX((getScaledContentWidth() / 2.0f) + (btn->getScaledContentWidth() / 2.0f) + 5.0f);
+                if (auto moreTags = getChildByID("raydeeux_thesillydoggo.evenmoreleveltags/more-level-tags-menu")) moreTags->setPositionX(copyTag->getPositionX() + 17.5f);
             };
-        };
+
+            creatorMenu->setVisible(false);
+            addChild(btn);
+        }
 
         return true;
     }

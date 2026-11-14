@@ -8,7 +8,7 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-project(LevelCollaborators VERSION 1.0.0)
+project(LevelCollaborations VERSION 1.0.0)
 
 set(CW_ENABLE_WEB ON CACHE BOOL "" FORCE)
 
@@ -32,5 +32,6 @@ if(CW_TESTING)
     target_compile_definitions(${PROJECT_NAME} PRIVATE CW_TESTING=1)
 endif()
 
+CPMAddPackage("gh:dankmeme01/cue#main")
 CPMAddPackage("gh:Cheeseworks/rhatts-geode-sillies#main")
-target_link_libraries(${PROJECT_NAME} rhatt)
+target_link_libraries(${PROJECT_NAME} cue rhatt)

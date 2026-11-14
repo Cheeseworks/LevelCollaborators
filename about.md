@@ -1,9 +1,7 @@
-# ![👥](frame:accountBtn_friends_001.png?scale=0.5) Level Collaborators
-**List other creators in your collabs!**
+# ![👥](frame:accountBtn_friends_001.png?scale=0.5) Level Collaborations
+**Feature other creators on your levels!**
 
-*by [Cheeseworks](user:6408873)!*
-
-> ![✳️](frame:collaborationIcon_001.png) <cg>*This mod has settings you can utilize to customize your experience.*</c>
+<cd>by [Cheeseworks](user:6408873)!</c>
 
 ---
 

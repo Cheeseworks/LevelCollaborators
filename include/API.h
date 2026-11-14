@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef GEODE_IS_WINDOWS
-#ifdef LevelCollaborators_EXPORTS
+#ifdef LevelCollaborations_EXPORTS
 #define CW_LEVELCOLLAB_API_DLL __declspec(dllexport)
 #else
 #define CW_LEVELCOLLAB_API_DLL __declspec(dllimport)
@@ -120,6 +120,15 @@ namespace cw::levelcollab {
         std::unordered_map<int, std::shared_ptr<Collaboration>> m_collaborations;
 
     protected:
+        CollaborationManager() = default;
+        ~CollaborationManager() = default;
+
+        CollaborationManager(const CollaborationManager&) = delete;
+        CollaborationManager& operator=(const CollaborationManager&) = delete;
+
+        CollaborationManager(CollaborationManager&&) = delete;
+        CollaborationManager& operator=(CollaborationManager&&) = delete;
+
         void registerCollab(std::shared_ptr<Collaboration> collab);
 
         std::weak_ptr<Collaboration> getCollab(int levelID) const noexcept;

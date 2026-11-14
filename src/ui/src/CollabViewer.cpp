@@ -1,4 +1,4 @@
-#include "../CollabViewer.h"
+#include "../CollabViewer.hpp"
 
 #include <API.h>
 

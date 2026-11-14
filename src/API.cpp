@@ -1,6 +1,6 @@
 #include <API.h>
 
-#include <Utils.h>
+#include <Util.h>
 
 #include <asp/iter.hpp>
 
@@ -232,8 +232,8 @@ void cw::levelcollab::getCollaboratorInfo(int accountID, CopyableFunction<void(R
 }
 
 CollaborationManager* CollaborationManager::get() noexcept {
-    static auto inst = new (std::nothrow) CollaborationManager();
-    return inst;
+    static CollaborationManager inst;
+    return &inst;
 }
 
 void fetch::getUserByUsername(std::string_view username, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {

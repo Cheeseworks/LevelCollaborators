@@ -1,4 +1,4 @@
-#include "../CollabPopup.h"
+#include "../CollabPopup.hpp"
 
 #include <API.h>
 
@@ -8,7 +8,7 @@ using namespace geode::prelude;
 using namespace cw::levelcollab;
 
 bool CollabPopup::init(GJGameLevel* level, std::weak_ptr<Collaboration> const& collab) {
-    if (!Popup::init({350.f, 225.f})) return false;
+    if (!Popup::init({ 350.0f, 225.0f })) return false;
 
     setID("collaboration"_spr);
     setTitle("Collaborators");
@@ -20,12 +20,12 @@ bool CollabPopup::init(GJGameLevel* level, std::weak_ptr<Collaboration> const& c
     forLabel->setScale(m_title->getScale() * 0.5f);
     forLabel->ignoreAnchorPointForPosition(false);
     forLabel->setAnchorPoint(m_title->getAnchorPoint());
-    forLabel->setPosition({m_title->getPositionX(), m_title->getPositionY() - 15.f});
+    forLabel->setPosition({ m_title->getPositionX(), m_title->getPositionY() - 15.0f });
 
     m_mainLayer->addChild(forLabel, 9);
 
     return true;
-};
+}
 
 CollabPopup* CollabPopup::create(GJGameLevel* level, std::weak_ptr<Collaboration> const& collab) {
     auto ret = new CollabPopup();
@@ -36,4 +36,4 @@ CollabPopup* CollabPopup::create(GJGameLevel* level, std::weak_ptr<Collaboration
 
     delete ret;
     return nullptr;
-};
+}

@@ -4,6 +4,8 @@
 
 #include <API.h>
 
+#include <ui/Include.h>
+
 #include <Geode/Geode.hpp>
 
 namespace cw::levelcollab {
