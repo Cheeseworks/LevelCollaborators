@@ -26,6 +26,56 @@ bool CollabDashboardMenu::init(CCSize const& size) {
     return true;
 }
 
+bool menu::DashboardInvites::init(CCSize const& size) {
+    if (!CollabDashboardMenu::init(size)) return false;
+
+    EmojiRegistry emojis;  // not worth adding 3 trillion emojis for one label
+    emojis.insert(U":sus:", "particle_318_001.png");
+
+    auto nothing = Label::create("No invites yet... :sus:", cw::ui::font::gold);
+    nothing->setID("nothing-yet-label");
+    nothing->setScale(0.625f);
+    nothing->setAlignment(Label::Alignment::Center);
+    nothing->setEmojiRegistry(emojis);
+
+    addChildAtPosition(nothing, Anchor::Center);
+
+    return true;
+}
+
+menu::DashboardInvites* menu::DashboardInvites::create(CCSize const& size) {
+    auto ret = new menu::DashboardInvites();
+    if (ret->init(size)) {
+        ret->autorelease();
+        return ret;
+    }
+
+    delete ret;
+    return nullptr;
+}
+
+bool menu::DashboardManage::init(CCSize const& size) {
+    if (!CollabDashboardMenu::init(size)) return false;
+
+    return true;
+}
+
+menu::DashboardManage* menu::DashboardManage::create(CCSize const& size) {
+    auto ret = new menu::DashboardManage();
+    if (ret->init(size)) {
+        ret->autorelease();
+        return ret;
+    }
+
+    delete ret;
+    return nullptr;
+}
+
+void CollabDashboard::switchMenu(CollabMenuType type) {
+    for (auto const& [menu, node] : m_menus) node->setVisible(menu == type);
+    for (auto const& [tab, node] : m_tabs) node->select(tab == type);
+}
+
 bool CollabDashboard::init() {
     if (!CCLayer::init()) return false;
 
@@ -37,10 +87,16 @@ bool CollabDashboard::init() {
     auto const winSize = CCDirector::sharedDirector()->getWinSize();
 
     auto bg = cue::RepeatingBackground::create("game_bg_12_001.png", 0.875f, cue::RepeatMode::X, winSize);
-    bg->setColor({ 187, 254, 215 });
+    bg->setColor({ 75, 75, 75 });
     bg->setSpeed(1.125f);
 
     addChild(bg, -9);
+
+    auto bgGrad = CCLayerGradient::create({ 0, 65, 115, 125 }, { 15, 105, 10, 125 }, { 45.0f, -45.0f });
+    bgGrad->setBlendFunc({ GL_ONE, GL_ONE_MINUS_SRC_ALPHA });
+    bgGrad->setOpacity(100);
+
+    addChild(bgGrad, -8);
 
     auto title = Button::createWithLabel(
         "Level Collaborations",
@@ -62,7 +118,7 @@ bool CollabDashboard::init() {
 
     auto btnContainer = CCNode::create();
     btnContainer->setID("social-button-menu");
-    btnContainer->setAnchorPoint({ 1, 0 });
+    btnContainer->setAnchorPoint({ 1.0f, 0.0f });
     btnContainer->setLayout(btnContainerLayout);
 
     addChildAtPosition(btnContainer, Anchor::BottomRight, { -12.5f, 12.5f }, false);
@@ -106,6 +162,82 @@ bool CollabDashboard::init() {
     };
 
     btnContainer->updateLayout();
+
+    static constexpr auto maxContainerWidth = 440.f;
+    static constexpr auto minSidesGap = 50.f;
+
+    auto containerWidth = std::min(maxContainerWidth, winSize.width - minSidesGap * 2.0f);
+
+    auto menuContainer = NineSlice::create("black-square.png"_gode);
+    menuContainer->setID("menu-container");
+    menuContainer->setContentSize({ containerWidth, 230.0f });
+
+    addChildAtPosition(menuContainer, Anchor::Center, { 0.0f, -1.25f }, false);
+
+    auto invitesDb = menu::DashboardInvites::create(menuContainer->getScaledContentSize());
+    auto manageDb = menu::DashboardManage::create(menuContainer->getScaledContentSize());
+
+    m_menus[CollabMenuType::Invites] = invitesDb;
+    m_menus[CollabMenuType::Manage] = manageDb;
+
+    menuContainer->addChildAtPosition(invitesDb, Anchor::Center);
+    menuContainer->addChildAtPosition(manageDb, Anchor::Center);
+
+    auto tabContainerLayout = RowLayout::create()
+                                  ->setGap(12.5f)
+                                  ->setDefaultScaleLimits(0.125f, 0.825f);
+
+    auto tabContainer = CCNode::create();
+    tabContainer->setID("tab-container");
+    tabContainer->setAnchorPoint({ 0.5f, 0.5f });
+    tabContainer->setContentWidth(containerWidth);
+    tabContainer->setLayout(tabContainerLayout);
+
+    addChildAtPosition(tabContainer, Anchor::Bottom, { 0.0f, 20.0f }, false);
+
+    struct TabData final {
+        ZStringView sprite;
+        std::string label;
+        std::string id;
+        CollabMenuType tab;
+    };
+
+    auto tabs = std::array{
+        TabData{
+            "particle_207_001.png",
+            "Invites",
+            "invite-viewer-tab-btn",
+            CollabMenuType::Invites,
+        },
+        TabData{
+            "particle_200_001.png",
+            "Manage",
+            "collab-manager-tab-btn",
+            CollabMenuType::Manage,
+        },
+    };
+
+    for (auto& t : tabs) {
+        auto spr = GeodeTabSprite::create(t.sprite, std::move(t.label), 130.0f);
+        auto btn = Button::createWithNode(
+            spr,
+            [this, tab = t.tab](auto) {
+                this->switchMenu(tab);
+            }
+        );
+        btn->setID(std::move(t.id));
+        btn->setScaleMultiplier(1.125f);
+
+        tabContainer->addChild(btn);
+
+        m_tabs[t.tab] = spr;
+    };
+
+    tabContainer->updateLayout();
+
+    cw::ui::nodes::addHelpButton(this, "This is your <cg>Level Collab dashboard</c>, you can <cy>manage your own level collaborations</c> or <cy>review invites from others</c>.", false, 0.875f, { -7.5f, -7.5f });
+
+    switchMenu(CollabMenuType::Invites);
 
     return true;
 }

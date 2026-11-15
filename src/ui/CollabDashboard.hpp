@@ -5,7 +5,10 @@
 #include <Geode/ui/Style.hpp>
 
 namespace cw::levelcollab {
-    enum class CollabMenuType : uint8_t {};
+    enum class CollabMenuType : uint8_t {
+        Invites,
+        Manage,
+    };
 
     class CollabDashboardMenu : public cocos2d::CCNode {
     protected:
@@ -18,7 +21,7 @@ namespace cw::levelcollab {
             bool init(cocos2d::CCSize const& size) override;
 
         public:
-            static DashboardInvites* create();
+            static DashboardInvites* create(cocos2d::CCSize const& size);
         };
 
         class DashboardManage final : public CollabDashboardMenu {
@@ -26,7 +29,7 @@ namespace cw::levelcollab {
             bool init(cocos2d::CCSize const& size) override;
 
         public:
-            static DashboardManage* create();
+            static DashboardManage* create(cocos2d::CCSize const& size);
         };
     };
 
@@ -34,6 +37,8 @@ namespace cw::levelcollab {
     private:
         std::unordered_map<CollabMenuType, geode::Ref<CollabDashboardMenu>> m_menus;
         std::unordered_map<CollabMenuType, geode::Ref<geode::GeodeTabSprite>> m_tabs;
+
+        void switchMenu(CollabMenuType type);
 
     protected:
         void keyBackClicked() override;

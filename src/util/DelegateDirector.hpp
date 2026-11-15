@@ -3,5 +3,6 @@
 #include <rhatt/base/Singleton.hpp>
 
 namespace cw::levelcollab {
-    class DelegateDirector final : public base::Singleton<DelegateDirector> {};
+    class DelegateDirector final : public base::Singleton<DelegateDirector> {
+    };
 };
