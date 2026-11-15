@@ -16,10 +16,15 @@ In the main menu, you can find the <cg>collaborations button</c> in the menu loc
 ### Inviting
 **As a <cg>level creator</c>**, you can <cy>invite other players as collaborators</c> by going to the <cg>info page of your published level</c> and <cy>press the collaborators button</c> on the left-hand side to open the <cg>collaboration manager page</c>. Once open, you can <cy>type in the username of the player(s) you would like to invite</c>.
 
+### Creating with others
+This mod <cr>only focuses on crediting creators on already published levels</c>. If you'd like to <cd>actively create levels with other people in realtime</c>, check out **[Editor Collab](mod:alk.editor-collab)**!
+
+<mod:alk.editor-collab>
+
 ---
 
 ### Credits
-- **[ArcticWoof](user:7689052)**: mod idea.....
+- **[ArcticWoof](user:7689052)**: original mod idea.....
 
 ---
 

@@ -20,10 +20,13 @@ In the main menu, you can find the collaborations button in the menu located at 
 ### Inviting
 **As a level creator**, you can invite other players as collaborators by going to the info page of your published level and press the collaborators button on the left-hand side to open the collaboration manager page. Once open, you can type in the username of the player(s) you would like to invite.
 
+### Creating with others
+This mod only focuses on crediting creators on already published levels. If you'd like to actively create levels with other people in realtime, check out **[Editor Collab](https://geode-sdk.org/mods/alk.editor-collab)**!
+
 ---
 
 ### Credits
-- **[ArcticWoof](https://www.github.com/DumbCaveSpider/)**: mod idea.....
+- **[ArcticWoof](https://www.github.com/DumbCaveSpider/)**: original mod idea.....
 
 ---
 
