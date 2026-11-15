@@ -56,6 +56,7 @@ matjson::Value matjson::Serialize<Collaborator>::toJson(Collaborator const& valu
 }
 
 Result<Collaboration> matjson::Serialize<Collaboration>::fromJson(matjson::Value const& value) {
+    GEODE_UNWRAP_INTO(auto id, value["id"].asUInt());
     GEODE_UNWRAP_INTO(auto levelID, value["level_id"].asInt());
     GEODE_UNWRAP_INTO(auto levelName, value["level_name"].asString());
     GEODE_UNWRAP_INTO(auto owner, value["owner"].as<Collaborator>());
@@ -67,11 +68,12 @@ Result<Collaboration> matjson::Serialize<Collaboration>::fromJson(matjson::Value
         collaborators.push_back(std::move(c));
     };
 
-    return Ok(Collaboration::create(levelID, std::move(levelName), std::move(owner), std::move(collaborators)));
+    return Ok(Collaboration::create(id, levelID, std::move(levelName), std::move(owner), std::move(collaborators)));
 }
 
 matjson::Value matjson::Serialize<Collaboration>::toJson(Collaboration const& value) {
     Value out;
+    out["id"] = value.getID();
     out["level_id"] = value.getLevelID();
     out["level_name"] = value.getLevelName();
     out["owner"] = value.getOwner();

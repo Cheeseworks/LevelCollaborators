@@ -29,7 +29,7 @@ bool CollabDashboardMenu::init(CCSize const& size) {
 bool menu::DashboardInvites::init(CCSize const& size) {
     if (!CollabDashboardMenu::init(size)) return false;
 
-    EmojiRegistry emojis;  // not worth adding 3 trillion emojis for one label
+    EmojiRegistry emojis;
     emojis.insert(U":sus:", "particle_318_001.png");
 
     auto nothing = Label::create("No invites yet... :sus:", cw::ui::font::gold);

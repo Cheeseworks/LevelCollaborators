@@ -85,13 +85,15 @@ namespace cw::levelcollab {
 
     struct Collaboration final {
     private:
-        int m_levelID;
+        uint64_t m_id = 0;
+        int m_levelID = -1;
         std::string m_levelName;
         Collaborator m_owner;
         std::vector<Collaborator> m_collaborators;
 
     protected:
         Collaboration(
+            uint64_t id,
             int levelID,
             std::string levelName,
             Collaborator owner,
@@ -101,8 +103,9 @@ namespace cw::levelcollab {
     public:
         Collaboration() = default;
 
-        static Collaboration create(int levelID, std::string levelName, Collaborator owner, std::vector<Collaborator> collaborators);
+        static Collaboration create(uint64_t id, int levelID, std::string levelName, Collaborator owner, std::vector<Collaborator> collaborators);
 
+        [[nodiscard]] CW_LEVELCOLLAB_API_DLL uint64_t getID() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getLevelID() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL geode::ZStringView getLevelName() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL Collaborator const& getOwner() const noexcept;

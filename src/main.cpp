@@ -19,7 +19,7 @@ using namespace cw::levelcollab;
 static auto const arcwf = Collaborator::create(7689052, "ArcticWoof", CollaboratorIcon::create(28, IconType::Cube, 94, 98, 1, true), CollaboratorType::Decoration);
 static auto const cwrks = Collaborator::create(6408873, "Cheeseworks", CollaboratorIcon::create(290, IconType::Cube, 83, 12, 3, true), CollaboratorType::Gameplay);
 
-static auto const collaboration = Collaboration::create(104663075, "Seven Run", arcwf, { cwrks });
+static auto const collaboration = Collaboration::create(1, 104663075, "Seven Run", arcwf, { cwrks });
 
 namespace cw::levelcollab {
     namespace ui {

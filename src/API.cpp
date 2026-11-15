@@ -114,17 +114,19 @@ void Collaborator::reloadInfo(CopyableFunction<void(Result<Collaborator>)>&& cal
 }
 
 Collaboration::Collaboration(
+    uint64_t id,
     int levelID,
     std::string levelName,
     Collaborator owner,
     std::vector<Collaborator> collaborators
 ) :
+    m_id(id),
     m_levelID(levelID),
     m_levelName(std::move(levelName)),
     m_owner(std::move(owner)),
     m_collaborators(std::move(collaborators)) {}
 
-Collaboration Collaboration::create(int levelID, std::string levelName, Collaborator owner, std::vector<Collaborator> collaborators) {
+Collaboration Collaboration::create(uint64_t id, int levelID, std::string levelName, Collaborator owner, std::vector<Collaborator> collaborators) {
     auto cm = CollaborationManager::get();
 
 #ifdef CW_TESTING
@@ -138,10 +140,14 @@ Collaboration Collaboration::create(int levelID, std::string levelName, Collabor
     log::debug("Creating new collaboration for level {} with {} creators", levelID, collaborators.size());
 #endif
 
-    Collaboration c{ levelID, std::move(levelName), std::move(owner), std::move(collaborators) };
+    Collaboration c{ id, levelID, std::move(levelName), std::move(owner), std::move(collaborators) };
     cm->registerCollab(c);
 
     return c;
+}
+
+uint64_t Collaboration::getID() const noexcept {
+    return m_id;
 }
 
 int Collaboration::getLevelID() const noexcept {
