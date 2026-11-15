@@ -25,7 +25,7 @@ CollaboratorIcon::CollaboratorIcon(
     m_useGlow(useGlow) {}
 
 CollaboratorIcon CollaboratorIcon::create(int icon, IconType type, int color1, int color2, int glow, bool useGlow) {
-    return CollaboratorIcon(icon, type, color1, color2, glow, useGlow);
+    return CollaboratorIcon{ icon, type, color1, color2, glow, useGlow };
 }
 
 int CollaboratorIcon::getIcon() const noexcept {
@@ -53,34 +53,31 @@ bool CollaboratorIcon::useGlow() const noexcept {
 }
 
 SimplePlayer* CollaboratorIcon::createIcon() const {
-    // me when gamemanager doesnt exist owo (/j (you're gonna see this a lot just ignore it))
-    if (auto gm = GameManager::sharedState()) {
-        auto player = SimplePlayer::create(getIcon());
-        player->setColor(gm->colorForIdx(getColor1()));
-        player->setSecondColor(gm->colorForIdx(getColor2()));
+    auto gm = GameManager::sharedState();
 
-        if (useGlow()) player->setGlowOutline(gm->colorForIdx(getGlow()));
-        if (!useGlow()) player->disableGlowOutline();
+    auto player = SimplePlayer::create(getIcon());
+    player->setColor(gm->colorForIdx(getColor1()));
+    player->setSecondColor(gm->colorForIdx(getColor2()));
 
-        return player;
-    };
+    if (useGlow()) player->setGlowOutline(gm->colorForIdx(getGlow()));
+    if (!useGlow()) player->disableGlowOutline();
 
-    return nullptr;
+    return player;
 }
 
 Collaborator::Collaborator(
-    std::string name,
     int accountID,
+    std::string name,
     CollaboratorIcon icon,
     CollaboratorType type
 ) :
-    m_name(std::move(name)),
     m_accountID(accountID),
+    m_name(std::move(name)),
     m_icon(icon),
     m_type(type) {}
 
-Collaborator Collaborator::create(std::string name, int accountID, CollaboratorIcon icon, CollaboratorType type) {
-    return Collaborator(std::move(name), accountID, std::move(icon), type);
+Collaborator Collaborator::create(int accountID, std::string name, CollaboratorIcon icon, CollaboratorType type) {
+    return Collaborator{ accountID, std::move(name), std::move(icon), type };
 }
 
 ZStringView Collaborator::getName() const noexcept {
@@ -99,8 +96,8 @@ CollaboratorType Collaborator::getType() const noexcept {
     return m_type;
 }
 
-void Collaborator::reloadInfo(geode::CopyableFunction<void(geode::Result<Collaborator>)>&& callback) {
-    getCollaboratorInfo(getAccountID(), [cb = std::move(callback), this](geode::Result<GJUserScore*> res) {
+void Collaborator::reloadInfo(CopyableFunction<void(Result<Collaborator>)>&& callback) {
+    getCollaboratorInfo(getAccountID(), [cb = std::move(callback), this](Result<GJUserScore*> res) {
         if (res.isErr()) {
             log::error("Failed to reload collaborator info: {}", res.unwrapErr());
             return cb(Err(res.unwrapErr()));
@@ -118,14 +115,16 @@ void Collaborator::reloadInfo(geode::CopyableFunction<void(geode::Result<Collabo
 
 Collaboration::Collaboration(
     int levelID,
+    std::string levelName,
     Collaborator owner,
     std::vector<Collaborator> collaborators
 ) :
     m_levelID(levelID),
+    m_levelName(std::move(levelName)),
     m_owner(std::move(owner)),
     m_collaborators(std::move(collaborators)) {}
 
-Collaboration Collaboration::create(int levelID, Collaborator owner, std::vector<Collaborator> collaborators) {
+Collaboration Collaboration::create(int levelID, std::string levelName, Collaborator owner, std::vector<Collaborator> collaborators) {
     auto cm = CollaborationManager::get();
 
 #ifdef CW_TESTING
@@ -139,7 +138,7 @@ Collaboration Collaboration::create(int levelID, Collaborator owner, std::vector
     log::debug("Creating new collaboration for level {} with {} creators", levelID, collaborators.size());
 #endif
 
-    auto c = Collaboration{ levelID, std::move(owner), std::move(collaborators) };
+    Collaboration c{ levelID, std::move(levelName), std::move(owner), std::move(collaborators) };
     cm->registerCollab(c);
 
     return c;
@@ -147,6 +146,10 @@ Collaboration Collaboration::create(int levelID, Collaborator owner, std::vector
 
 int Collaboration::getLevelID() const noexcept {
     return m_levelID;
+}
+
+ZStringView Collaboration::getLevelName() const noexcept {
+    return m_levelName;
 }
 
 Collaborator const& Collaboration::getOwner() const noexcept {
@@ -157,29 +160,25 @@ std::span<const Collaborator> Collaboration::getCollaborators() const noexcept {
     return m_collaborators;
 }
 
-GJGameLevel* Collaboration::getLevel() const {
+GJGameLevel* Collaboration::getGJLevel() const {
     if (auto glm = GameLevelManager::sharedState()) return glm->getSavedLevel(m_levelID);
     return nullptr;
 }
 
 std::string Collaboration::getFormattedString(bool prefix) const {
-    std::string out;
-
     auto const& owner = getOwner();
 
     if (getCollaborators().size() > 2) {
-        out = fmt::format("{}{} & {} more", prefix ? "By " : "", owner.getName(), getCollaborators().size() - 1);
+        return fmt::format("{}{} & {} more", prefix ? "By " : "", owner.getName(), getCollaborators().size() - 1);
     } else if (getCollaborators().size() >= 1) {
         std::string other = getCollaborators()[0].getName();
 
         if (other.empty()) return fmt::format("{}{} & more", prefix ? "By " : "", owner.getName());
 
-        out = fmt::format("{}{} & {}", prefix ? "By " : "", owner.getName(), other);
+        return fmt::format("{}{} & {}", prefix ? "By " : "", owner.getName(), other);
     } else {
         return fmt::format("{}{}", prefix ? "By " : "", owner.getName());
     };
-
-    return out;
 }
 
 struct CollaborationManager::Impl final {
@@ -194,7 +193,7 @@ void CollaborationManager::registerCollab(Collaboration collab) {
 }
 
 Result<Collaboration> CollaborationManager::getCollab(int levelID) const noexcept {
-    if (auto it = m_impl->collaborations.find(levelID); it != m_impl->collaborations.end()) return Ok(it->second);
+    if (auto const it = m_impl->collaborations.find(levelID); it != m_impl->collaborations.end()) return Ok(it->second);
     return Err("Collaboration not found");
 }
 
@@ -206,7 +205,7 @@ std::vector<Collaboration> CollaborationManager::getCollabs() const noexcept {
     return out;
 }
 
-geode::Result<Collaboration> CollaborationManager::getCollabForLevel(int levelID) const noexcept {
+Result<Collaboration> CollaborationManager::getCollabForLevel(int levelID) const noexcept {
     return getCollab(levelID);
 }
 

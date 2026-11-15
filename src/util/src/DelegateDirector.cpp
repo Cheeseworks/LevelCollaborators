@@ -1,0 +1,161 @@
+#include "../DelegateDirector.hpp"
+
+#include <Util.h>
+
+#include <rhatt/prelude.h>
+
+#include <Geode/Geode.hpp>
+
+using namespace geode::prelude;
+using namespace cw::levelcollab;
+
+void DelegateDirector::loadLevelsFinished(CCArray* search, const char* key, int type) {
+    GameLevelManager::sharedState()->m_levelManagerDelegate = nullptr;
+
+#ifdef CW_TESTING
+    log::debug("Received finished request with key {}", key);
+#endif
+
+    switch ((SearchType)type) {
+        default: return;
+
+        case SearchType::Search: {
+            if (auto const it = m_levelCallbacks.find(key); it != m_levelCallbacks.end()) {
+                auto array = CCArrayExt<GJGameLevel*>(search);
+                if (array.empty()) return it->second(Err("No results found"));
+
+                it->second(Ok(array[0]));
+                m_levelCallbacks.erase(it);
+
+#ifdef CW_TESTING
+                log::debug("Cleaned up level callback entry for key {}", key);
+#endif
+            } else {
+                log::error("No level search callback found for key {}", key);
+            };
+        }; break;
+
+        case SearchType::Users: {
+            if (auto const it = m_userCallbacks.find(key); it != m_userCallbacks.end()) {
+                auto array = CCArrayExt<GJUserScore*>(search);
+                if (array.empty()) return it->second(Err("No results found"));
+
+                it->second(Ok(array[0]));
+                m_userCallbacks.erase(it);
+
+#ifdef CW_TESTING
+                log::debug("Cleaned up user callback entry for key {}", key);
+#endif
+            } else {
+                log::error("No user search callback found for key {}", key);
+            };
+        }; break;
+    };
+}
+
+void DelegateDirector::loadLevelsFailed(const char* key, int type) {
+    GameLevelManager::sharedState()->m_levelManagerDelegate = nullptr;
+
+    log::warn("Received failed request with key {}", key);
+
+    switch ((SearchType)type) {
+        default: return;
+
+        case SearchType::Search: {
+            if (auto const it = m_levelCallbacks.find(key); it != m_levelCallbacks.end()) {
+                it->second(Err("Request failed"));
+                m_levelCallbacks.erase(it);
+
+#ifdef CW_TESTING
+                log::debug("Cleaned up level callback entry for key {}", key);
+#endif
+            };
+        }; break;
+
+        case SearchType::Users: {
+            if (auto const it = m_userCallbacks.find(key); it != m_userCallbacks.end()) {
+                it->second(Err("Request failed"));
+                m_userCallbacks.erase(it);
+
+#ifdef CW_TESTING
+                log::debug("Cleaned up user callback entry for key {}", key);
+#endif
+            };
+        }; break;
+    };
+}
+
+void DelegateDirector::getUserInfoFinished(GJUserScore* score) {
+    GameLevelManager::sharedState()->m_userInfoDelegate = nullptr;
+
+#ifdef CW_TESTING
+    log::debug("Received finished request for account ID {}", score->m_accountID);
+#endif
+
+    if (auto const it = m_userIDCallbacks.find(score->m_accountID); it != m_userIDCallbacks.end()) {
+        if (it->second.empty()) return log::error("No callbacks found for account ID {}", score->m_accountID);
+        for (auto& cb : it->second) cb(Ok(score));
+        m_userIDCallbacks.erase(it);
+
+#ifdef CW_TESTING
+        log::debug("Cleared callback list for account ID {}", score->m_accountID);
+#endif
+    };
+}
+
+void DelegateDirector::getUserInfoFailed(int id) {
+    GameLevelManager::sharedState()->m_userInfoDelegate = nullptr;
+
+    log::warn("Received failed request for account ID {}", id);
+
+    if (auto const it = m_userIDCallbacks.find(id); it != m_userIDCallbacks.end()) {
+        if (it->second.empty()) return log::error("No callbacks found for account ID {}", id);
+        for (auto& cb : it->second) cb(Err("Request failed"));
+        m_userIDCallbacks.erase(it);
+
+#ifdef CW_TESTING
+        log::debug("Cleared callback list for account ID {}", id);
+#endif
+    };
+}
+
+void DelegateDirector::searchLevel(int levelID, LevelSearchCallback callback) {
+    auto glm = GameLevelManager::sharedState();
+
+    auto obj = GJSearchObject::create(SearchType::Search, cw::str::fmtNum(levelID));
+    m_levelCallbacks[obj->getKey()] = std::move(callback);
+
+#ifdef CW_TESTING
+    log::trace("Registered level callback with key '{}'", obj->getKey());
+#endif
+
+    glm->m_levelManagerDelegate = this;
+    glm->getOnlineLevels(obj);
+}
+
+void DelegateDirector::searchUser(std::string username, UserSearchCallback callback) {
+    auto glm = GameLevelManager::sharedState();
+
+    auto obj = GJSearchObject::create(SearchType::Users, std::move(username));
+    m_userCallbacks[obj->getKey()] = std::move(callback);
+
+#ifdef CW_TESTING
+    log::trace("Registered user callback with key '{}'", obj->getKey());
+#endif
+
+    glm->m_levelManagerDelegate = this;
+    glm->getUsers(obj);
+}
+
+void DelegateDirector::searchUserByID(int accountID, UserSearchCallback callback) {
+    auto glm = GameLevelManager::sharedState();
+
+    m_userIDCallbacks[accountID].push_back(std::move(callback));
+
+#ifdef CW_TESTING
+    log::trace("Pushed user ID callback for account ID '{}'", accountID);
+#endif
+
+    glm->m_userInfoDelegate = this;
+    glm->getGJUserInfo(accountID);
+}

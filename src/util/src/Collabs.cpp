@@ -35,20 +35,20 @@ matjson::Value matjson::Serialize<CollaboratorIcon>::toJson(CollaboratorIcon con
 }
 
 Result<Collaborator> matjson::Serialize<Collaborator>::fromJson(matjson::Value const& value) {
-    GEODE_UNWRAP_INTO(auto name, value["name"].asString());
     GEODE_UNWRAP_INTO(auto accountID, value["account_id"].asInt());
+    GEODE_UNWRAP_INTO(auto name, value["name"].asString());
     GEODE_UNWRAP_INTO(auto icon, value["icon"].as<CollaboratorIcon>());
     GEODE_UNWRAP_INTO(auto _type, value["type"].asUInt());
 
     auto type = (CollaboratorType)_type;
 
-    return Ok(Collaborator::create(std::move(name), accountID, icon, type));
+    return Ok(Collaborator::create(accountID, std::move(name), icon, type));
 }
 
 matjson::Value matjson::Serialize<Collaborator>::toJson(Collaborator const& value) {
     Value out;
-    out["name"] = value.getName();
     out["account_id"] = value.getAccountID();
+    out["name"] = value.getName();
     out["icon"] = value.getIcon();
     out["type"] = (uint8_t)value.getType();
 
@@ -57,21 +57,23 @@ matjson::Value matjson::Serialize<Collaborator>::toJson(Collaborator const& valu
 
 Result<Collaboration> matjson::Serialize<Collaboration>::fromJson(matjson::Value const& value) {
     GEODE_UNWRAP_INTO(auto levelID, value["level_id"].asInt());
+    GEODE_UNWRAP_INTO(auto levelName, value["level_name"].asString());
     GEODE_UNWRAP_INTO(auto owner, value["owner"].as<Collaborator>());
     GEODE_UNWRAP_INTO(auto _collaborators, value["collaborators"].asArray());
 
     std::vector<Collaborator> collaborators;
-    for (auto& i : _collaborators) {
-        GEODE_UNWRAP_INTO(auto c, i.as<Collaborator>());
+    for (auto& val : _collaborators) {
+        GEODE_UNWRAP_INTO(auto c, val.as<Collaborator>());
         collaborators.push_back(std::move(c));
     };
 
-    return Ok(Collaboration::create(levelID, std::move(owner), std::move(collaborators)));
+    return Ok(Collaboration::create(levelID, std::move(levelName), std::move(owner), std::move(collaborators)));
 }
 
 matjson::Value matjson::Serialize<Collaboration>::toJson(Collaboration const& value) {
     Value out;
     out["level_id"] = value.getLevelID();
+    out["level_name"] = value.getLevelName();
     out["owner"] = value.getOwner();
     out["collaborators"] = value.getCollaborators();
 

@@ -15,7 +15,7 @@ namespace cw::levelcollab {
         Effects = 3,        // Added additional visual effects
         Merging = 4,        // Merged different sections of the level
         Gameplay = 5,       // Worked on the layout and general gameplay
-        Decoration = 6,     // Decorated the gameplay of the level
+        Decoration = 6,     // Decorated the level
         Art = 7,            // Created custom art and/or themed assets for the level
         Music = 8,          // Composed or selected the music for the level
     };
@@ -56,15 +56,15 @@ namespace cw::levelcollab {
 
     struct Collaborator final {
     private:
-        std::string m_name;
         int m_accountID;
+        std::string m_name;
         CollaboratorIcon m_icon;
         CollaboratorType m_type;
 
     protected:
         Collaborator(
-            std::string name,
             int accountID,
+            std::string name,
             CollaboratorIcon icon,
             CollaboratorType type
         );
@@ -72,7 +72,7 @@ namespace cw::levelcollab {
     public:
         Collaborator() = default;
 
-        static Collaborator create(std::string name, int accountID, CollaboratorIcon icon, CollaboratorType type);
+        static Collaborator create(int accountID, std::string name, CollaboratorIcon icon, CollaboratorType type);
         static void createAsync(int accountID, CollaboratorType type, geode::CopyableFunction<void(geode::Result<Collaborator>)> callback);
 
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL geode::ZStringView getName() const noexcept;
@@ -86,12 +86,14 @@ namespace cw::levelcollab {
     struct Collaboration final {
     private:
         int m_levelID;
+        std::string m_levelName;
         Collaborator m_owner;
         std::vector<Collaborator> m_collaborators;
 
     protected:
         Collaboration(
             int levelID,
+            std::string levelName,
             Collaborator owner,
             std::vector<Collaborator> collaborators
         );
@@ -99,13 +101,14 @@ namespace cw::levelcollab {
     public:
         Collaboration() = default;
 
-        static Collaboration create(int levelID, Collaborator owner, std::vector<Collaborator> collaborators);
+        static Collaboration create(int levelID, std::string levelName, Collaborator owner, std::vector<Collaborator> collaborators);
 
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getLevelID() const noexcept;
+        [[nodiscard]] CW_LEVELCOLLAB_API_DLL geode::ZStringView getLevelName() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL Collaborator const& getOwner() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL std::span<const Collaborator> getCollaborators() const noexcept;
 
-        CW_LEVELCOLLAB_API_DLL GJGameLevel* getLevel() const;
+        CW_LEVELCOLLAB_API_DLL GJGameLevel* getGJLevel() const;
         CW_LEVELCOLLAB_API_DLL std::string getFormattedString(bool prefix = true) const;
     };
 

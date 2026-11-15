@@ -4,8 +4,6 @@
 
 #include <rhatt/prelude.h>
 
-#include <dankmeme.argon/argon.hpp>
-
 #include <Geode/Geode.hpp>
 
 #include <Geode/ui/Button.hpp>
@@ -18,10 +16,10 @@ using namespace geode::prelude;
 using namespace cw::levelcollab;
 
 // just for testing
-static auto const arcwf = Collaborator::create("ArcticWoof", 7689052, CollaboratorIcon::create(28, IconType::Cube, 94, 98, 1, true), CollaboratorType::Decoration);
-static auto const cwrks = Collaborator::create("Cheeseworks", 6408873, CollaboratorIcon::create(290, IconType::Cube, 83, 12, 3, true), CollaboratorType::Gameplay);
+static auto const arcwf = Collaborator::create(7689052, "ArcticWoof", CollaboratorIcon::create(28, IconType::Cube, 94, 98, 1, true), CollaboratorType::Decoration);
+static auto const cwrks = Collaborator::create(6408873, "Cheeseworks", CollaboratorIcon::create(290, IconType::Cube, 83, 12, 3, true), CollaboratorType::Gameplay);
 
-static auto const collaboration = Collaboration::create(104663075, arcwf, { cwrks });
+static auto const collaboration = Collaboration::create(104663075, "Seven Run", arcwf, { cwrks });
 
 namespace cw::levelcollab {
     namespace ui {
@@ -50,6 +48,15 @@ class $modify(LCMenuLayer, MenuLayer) {
         if (!MenuLayer::init()) return false;
 
         if (auto menu = getChildByID("bottom-menu")) ui::addCollabButton(menu);
+
+        queueInMainThread([]() {
+            DelegateDirector::get()->searchUserByID(6408873, [](Result<GJUserScore*> res) {
+                if (res.isErr()) return log::error("Failed to search for user: {}", res.unwrapErr());
+
+                auto u = std::move(res).unwrap();
+                log::info("Found user {} ({} ({})) #{}", u->m_userName, u->m_accountID, u->m_userID, u->m_globalRank);
+            });
+        });
 
         return true;
     }

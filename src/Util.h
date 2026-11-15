@@ -5,6 +5,7 @@
 #include <API.h>
 
 #include <ui/Include.h>
+#include <util/Include.h>
 
 #include <Geode/Geode.hpp>
 
