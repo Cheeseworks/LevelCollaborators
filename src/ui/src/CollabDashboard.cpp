@@ -13,13 +13,13 @@
 #include <Geode/ui/Style.hpp>
 
 using namespace geode::prelude;
-using namespace cw::levelcollab;
+using namespace cw::lvlcollab;
 
 bool CollabDashboardMenu::init(CCSize const& size) {
     if (!CCNode::init()) return false;
 
     setContentSize(size);
-    setAnchorPoint({ 0.5f, 0.5f });
+    setAnchorPoint(cw::anchor::center);
     ignoreAnchorPointForPosition(false);
     setVisible(false);
 
@@ -71,6 +71,23 @@ menu::DashboardManage* menu::DashboardManage::create(CCSize const& size) {
     return nullptr;
 }
 
+bool menu::DashboardCredits::init(CCSize const& size) {
+    if (!CollabDashboardMenu::init(size)) return false;
+
+    return true;
+}
+
+menu::DashboardCredits* menu::DashboardCredits::create(CCSize const& size) {
+    auto ret = new menu::DashboardCredits();
+    if (ret->init(size)) {
+        ret->autorelease();
+        return ret;
+    }
+
+    delete ret;
+    return nullptr;
+}
+
 void CollabDashboard::switchMenu(CollabMenuType type) {
     for (auto const& [menu, node] : m_menus) node->setVisible(menu == type);
     for (auto const& [tab, node] : m_tabs) node->select(tab == type);
@@ -82,7 +99,7 @@ bool CollabDashboard::init() {
     setKeypadEnabled(true);
     setKeyboardEnabled(true);
 
-    addBackButton(this, BackButtonStyle::Blue);
+    addBackButton(this, BackButtonStyle::Pink);
 
     auto const winSize = CCDirector::sharedDirector()->getWinSize();
 
@@ -163,8 +180,8 @@ bool CollabDashboard::init() {
 
     btnContainer->updateLayout();
 
-    static constexpr auto maxContainerWidth = 440.f;
-    static constexpr auto minSidesGap = 50.f;
+    static constexpr auto maxContainerWidth = 440.0f;
+    static constexpr auto minSidesGap = 50.0f;
 
     auto containerWidth = std::min(maxContainerWidth, winSize.width - minSidesGap * 2.0f);
 
@@ -174,46 +191,70 @@ bool CollabDashboard::init() {
 
     addChildAtPosition(menuContainer, Anchor::Center, { 0.0f, -1.25f }, false);
 
-    auto invitesDb = menu::DashboardInvites::create(menuContainer->getScaledContentSize());
-    auto manageDb = menu::DashboardManage::create(menuContainer->getScaledContentSize());
+    auto const dbSize = menuContainer->getScaledContentSize();
 
-    m_menus[CollabMenuType::Invites] = invitesDb;
-    m_menus[CollabMenuType::Manage] = manageDb;
+    struct DashboardData final {
+        CollabMenuType type;
+        CollabDashboardMenu* menu;
+    };
 
-    menuContainer->addChildAtPosition(invitesDb, Anchor::Center);
-    menuContainer->addChildAtPosition(manageDb, Anchor::Center);
+    auto dbs = std::array{
+        DashboardData{
+            CollabMenuType::Invites,
+            menu::DashboardInvites::create(dbSize),
+        },
+        DashboardData{
+            CollabMenuType::Manage,
+            menu::DashboardManage::create(dbSize),
+        },
+        DashboardData{
+            CollabMenuType::Credits,
+            menu::DashboardCredits::create(dbSize),
+        },
+    };
+
+    for (auto const& db : dbs) {
+        m_menus[db.type] = db.menu;
+        menuContainer->addChildAtPosition(db.menu, Anchor::Center);
+    };
 
     auto tabContainerLayout = RowLayout::create()
-                                  ->setGap(12.5f)
+                                  ->setGap(15.0f)
                                   ->setDefaultScaleLimits(0.125f, 0.825f);
 
     auto tabContainer = CCNode::create();
     tabContainer->setID("tab-container");
-    tabContainer->setAnchorPoint({ 0.5f, 0.5f });
+    tabContainer->setAnchorPoint(cw::anchor::center);
     tabContainer->setContentWidth(containerWidth);
     tabContainer->setLayout(tabContainerLayout);
 
-    addChildAtPosition(tabContainer, Anchor::Bottom, { 0.0f, 20.0f }, false);
+    addChildAtPosition(tabContainer, Anchor::Bottom, { 0.0f, 22.5f }, false);
 
     struct TabData final {
+        std::string id;
         ZStringView sprite;
         std::string label;
-        std::string id;
         CollabMenuType tab;
     };
 
     auto tabs = std::array{
         TabData{
+            "invite-viewer-tab-btn",
             "particle_207_001.png",
             "Invites",
-            "invite-viewer-tab-btn",
             CollabMenuType::Invites,
         },
         TabData{
+            "collab-manager-tab-btn",
             "particle_200_001.png",
             "Manage",
-            "collab-manager-tab-btn",
             CollabMenuType::Manage,
+        },
+        TabData{
+            "credits-btn",
+            "particle_218_001.png",
+            "Credits",
+            CollabMenuType::Credits,
         },
     };
 

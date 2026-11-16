@@ -4,10 +4,11 @@
 
 #include <Geode/ui/Style.hpp>
 
-namespace cw::levelcollab {
+namespace cw::lvlcollab {
     enum class CollabMenuType : uint8_t {
         Invites,
         Manage,
+        Credits,
     };
 
     class CollabDashboardMenu : public cocos2d::CCNode {
@@ -30,6 +31,14 @@ namespace cw::levelcollab {
 
         public:
             static DashboardManage* create(cocos2d::CCSize const& size);
+        };
+
+        class DashboardCredits final : public CollabDashboardMenu {
+        protected:
+            bool init(cocos2d::CCSize const& size) override;
+
+        public:
+            static DashboardCredits* create(cocos2d::CCSize const& size);
         };
     };
 

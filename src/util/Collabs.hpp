@@ -4,22 +4,22 @@
 
 #include <matjson.hpp>
 
-namespace cw::levelcollab {};
+namespace cw::lvlcollab {};
 
 template <>
-struct matjson::Serialize<cw::levelcollab::CollaboratorIcon> final {
-    static geode::Result<cw::levelcollab::CollaboratorIcon> fromJson(matjson::Value const& value);
-    static matjson::Value toJson(cw::levelcollab::CollaboratorIcon const& value);
+struct matjson::Serialize<cw::lvlcollab::CollaboratorIcon> final {
+    static geode::Result<cw::lvlcollab::CollaboratorIcon> fromJson(matjson::Value const& value);
+    static matjson::Value toJson(cw::lvlcollab::CollaboratorIcon const& value);
 };
 
 template <>
-struct matjson::Serialize<cw::levelcollab::Collaborator> final {
-    static geode::Result<cw::levelcollab::Collaborator> fromJson(matjson::Value const& value);
-    static matjson::Value toJson(cw::levelcollab::Collaborator const& value);
+struct matjson::Serialize<cw::lvlcollab::Collaborator> final {
+    static geode::Result<cw::lvlcollab::Collaborator> fromJson(matjson::Value const& value);
+    static matjson::Value toJson(cw::lvlcollab::Collaborator const& value);
 };
 
 template <>
-struct matjson::Serialize<cw::levelcollab::Collaboration> final {
-    static geode::Result<cw::levelcollab::Collaboration> fromJson(matjson::Value const& value);
-    static matjson::Value toJson(cw::levelcollab::Collaboration const& value);
+struct matjson::Serialize<cw::lvlcollab::Collaboration> final {
+    static geode::Result<cw::lvlcollab::Collaboration> fromJson(matjson::Value const& value);
+    static matjson::Value toJson(cw::lvlcollab::Collaboration const& value);
 };

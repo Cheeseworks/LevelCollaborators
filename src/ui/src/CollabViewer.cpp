@@ -1,8 +1,0 @@
-#include "../CollabViewer.hpp"
-
-#include <API.h>
-
-#include <Geode/Geode.hpp>
-
-using namespace geode::prelude;
-using namespace cw::levelcollab;

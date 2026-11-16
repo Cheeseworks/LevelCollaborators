@@ -2,7 +2,7 @@
 
 #include <rhatt/base/Singleton.hpp>
 
-namespace cw::levelcollab {
+namespace cw::lvlcollab {
     class DelegateDirector final : public base::Singleton<DelegateDirector>, public LevelManagerDelegate, public UserInfoDelegate {
         using LevelSearchCallback = geode::Function<void(geode::Result<GJGameLevel*>)>;
         using UserSearchCallback = geode::Function<void(geode::Result<GJUserScore*>)>;

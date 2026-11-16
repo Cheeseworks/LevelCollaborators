@@ -13,15 +13,18 @@
 #include <Geode/modify/LevelInfoLayer.hpp>
 
 using namespace geode::prelude;
-using namespace cw::levelcollab;
+using namespace cw::lvlcollab;
 
-// just for testing
-static auto const arcwf = Collaborator::create(7689052, "ArcticWoof", CollaboratorIcon::create(28, IconType::Cube, 94, 98, 1, true), CollaboratorType::Decoration);
-static auto const cwrks = Collaborator::create(6408873, "Cheeseworks", CollaboratorIcon::create(290, IconType::Cube, 83, 12, 3, true), CollaboratorType::Gameplay);
+$on_mod(Loaded) {  // just for testing
+    auto arcwf = Collaborator::create(7689052, 53843371, "ArcticWoof", CollaboratorIcon::create(290, IconType::Cube, 83, 12, 3, true), CollaboratorType::Decoration);
 
-static auto const collaboration = Collaboration::create(1, 104663075, "Seven Run", arcwf, { cwrks });
+    auto cwrks = Collaborator::create(6408873, 25777059, "Cheeseworks", CollaboratorIcon::create(28, IconType::Cube, 94, 98, 12, true), CollaboratorType::Gameplay);
+    auto eri = Collaborator::create(1941705, 10709102, "Eugene", CollaboratorIcon::create(370, IconType::Cube, 21, 3, 3, true), CollaboratorType::SpecialThanks);
 
-namespace cw::levelcollab {
+    Collaboration::create(1, 104663075, "Seven Run", std::move(arcwf), { std::move(cwrks), std::move(eri) });
+}
+
+namespace cw::lvlcollab {
     namespace ui {
         static void addCollabButton(CCNode* menu, bool alt = true) {
             auto btn = CCMenuItemExt::createSpriteExtra(
@@ -62,11 +65,35 @@ class $modify(LCMenuLayer, MenuLayer) {
     }
 };
 
-// class $modify(LCLevelCell, LevelCell) {
-//     void loadFromLevel(GJGameLevel* level) {
-//         LevelCell::loadFromLevel(level);
-//     };
-// };
+class $modify(LCLevelCell, LevelCell) {
+    void loadFromLevel(GJGameLevel* level) {
+        LevelCell::loadFromLevel(level);
+
+        auto cm = CollaborationManager::get();
+
+        auto collabRes = cm->getCollabForLevel(m_level->m_levelID);
+        if (collabRes.isOk()) {
+            auto collab = std::move(collabRes).unwrap();
+
+            auto nameLabel = m_mainLayer->getChildByID("level-name");
+
+            auto btn = Button::createWithLabel(
+                collab.getFormattedString(),
+                cw::ui::font::gold,
+                [this, collab = std::move(collab)](auto) {
+                    CollabPopup::create(m_level, collab)->show();
+                }
+            );
+            btn->setID("collaboration-btn"_spr);
+            btn->setScale(std::min(0.925f, btn->getScaledContentWidth() / 75.0f));
+            btn->setPosition({ nameLabel->getPositionX() + (btn->getScaledContentWidth() * 0.5f) + 1.25f, nameLabel->getPositionY() - 22.5f });
+
+            m_mainLayer->addChild(btn, 1);
+
+            m_mainMenu->getChildByID("creator-name")->setVisible(false);
+        };
+    }
+};
 
 class $modify(LCLevelInfoLayer, LevelInfoLayer) {
     bool init(GJGameLevel* level, bool challenge) {
@@ -82,17 +109,15 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
 
             auto creatorMenu = getChildByID("creator-info-menu");
 
-            auto btnLabel = Label::create(collab.getFormattedString(), cw::ui::font::gold);
-            btnLabel->setLimitLabelWidth(37.5f, 0.75f);
-
-            auto btn = Button::createWithNode(
-                btnLabel,
+            auto btn = Button::createWithLabel(
+                collab.getFormattedString(),
+                cw::ui::font::gold,
                 [this, collab = std::move(collab)](auto) {
                     CollabPopup::create(m_level, collab)->show();
                 }
             );
             btn->setID("collaboration-btn"_spr);
-            btn->setScale(0.75f);
+            btn->setScale(std::min(0.825f, btn->getScaledContentWidth() / 75.0f));
             btn->setPosition({ creatorMenu->getPositionX(), creatorMenu->getPositionY() + 11.25f });
 
             if (auto copyTag = getChildByID("copy-indicator")) {

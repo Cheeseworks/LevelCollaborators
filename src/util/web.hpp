@@ -6,7 +6,7 @@
 
 #include <Geode/utils/web.hpp>
 
-namespace cw::levelcollab {
+namespace cw::lvlcollab {
     namespace request {
         geode::utils::web::WebRequest withAuth(std::string token);
         arc::Future<geode::utils::web::WebRequest> withAuthCo(std::string token);

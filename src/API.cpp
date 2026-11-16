@@ -7,7 +7,7 @@
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
-using namespace cw::levelcollab;
+using namespace cw::lvlcollab;
 
 CollaboratorIcon::CollaboratorIcon(
     int icon,
@@ -67,25 +67,31 @@ SimplePlayer* CollaboratorIcon::createIcon() const {
 
 Collaborator::Collaborator(
     int accountID,
+    int userID,
     std::string name,
     CollaboratorIcon icon,
     CollaboratorType type
 ) :
     m_accountID(accountID),
+    m_userID(userID),
     m_name(std::move(name)),
     m_icon(icon),
     m_type(type) {}
 
-Collaborator Collaborator::create(int accountID, std::string name, CollaboratorIcon icon, CollaboratorType type) {
-    return Collaborator{ accountID, std::move(name), std::move(icon), type };
-}
-
-ZStringView Collaborator::getName() const noexcept {
-    return m_name;
+Collaborator Collaborator::create(int accountID, int userID, std::string name, CollaboratorIcon icon, CollaboratorType type) {
+    return Collaborator{ accountID, userID, std::move(name), std::move(icon), type };
 }
 
 int Collaborator::getAccountID() const noexcept {
     return m_accountID;
+}
+
+int Collaborator::getUserID() const noexcept {
+    return m_userID;
+}
+
+ZStringView Collaborator::getName() const noexcept {
+    return m_name;
 }
 
 CollaboratorIcon const& Collaborator::getIcon() const noexcept {
@@ -220,37 +226,27 @@ CollaborationManager* CollaborationManager::get() noexcept {
     return &inst;
 }
 
-void cw::levelcollab::requestCollabForLevel(int levelID, CopyableFunction<void(Collaboration)>&& callback) {
+void cw::lvlcollab::requestCollabForLevel(int levelID, CopyableFunction<void(Collaboration)>&& callback) {
 }
 
-void cw::levelcollab::getCollaboratorInfo(int accountID, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {
-    auto req = web::WebRequest()
-                   .bodyString(fmt::format("secret=Wmfd2893gb7&targetAccountID={}", utils::numToString(accountID)))
-                   .userAgent("");
+void cw::lvlcollab::getCollaboratorInfo(int accountID, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {
+}
 
-    async::spawn(
-        req.post("https://www.boomlings.com/database/getGJUserInfo20.php"),
-        [cb = std::move(callback)](web::WebResponse res) {  // copyable has const () operator woohoo!
-            auto const resStr = res.string().unwrapOrDefault();
+ZStringView cw::lvlcollab::getCollabTypeName(CollaboratorType type) noexcept {
+    switch (type) {
+        default: [[fallthrough]];
 
-            if (res.error()) {
-                log::error("Error getting user information: {}", resStr);
-                return cb(Err("An error occurred while fetching user information"));
-            };
-
-#ifdef CW_TESTING
-            log::debug("Received response: {}", resStr);
-#endif
-
-            auto dict = CCDictionary::create();
-            auto splits = asp::iter::split(resStr, ":")  // owo
-                              .mapCast<std::string>()
-                              .collect();
-
-            for (size_t i = 0; i + 1 < splits.size(); i += 2) dict->setObject(CCString::create(splits[i + 1]), splits[i]);
-            cb(Ok(GJUserScore::create(dict)));
-        }
-    );
+        case CollaboratorType::SpecialThanks: return "Special Thanks";
+        case CollaboratorType::Playtesting: return "Playtesting";
+        case CollaboratorType::Optimization: return "Optimization";
+        case CollaboratorType::Effects: return "Effects";
+        case CollaboratorType::Merging: return "Merging";
+        case CollaboratorType::Gameplay: return "Gameplay";
+        case CollaboratorType::Decoration: return "Decoration";
+        case CollaboratorType::Art: return "Art";
+        case CollaboratorType::Music: return "Music";
+        case CollaboratorType::Verifier: return "Verifier";
+    };
 }
 
 void fetch::getUserByUsername(std::string_view username, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {

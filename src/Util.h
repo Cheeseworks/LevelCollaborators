@@ -9,7 +9,7 @@
 
 #include <Geode/Geode.hpp>
 
-namespace cw::levelcollab {
+namespace cw::lvlcollab {
     namespace manager {  // very wip
         void requestCollabUpsert(int levelID, Collaboration collab, geode::CopyableFunction<void(bool success, std::string const& message)>&& callback = nullptr);
     };

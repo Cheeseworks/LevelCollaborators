@@ -7,7 +7,7 @@
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
-using namespace cw::levelcollab;
+using namespace cw::lvlcollab;
 
 void DelegateDirector::loadLevelsFinished(CCArray* search, const char* key, int type) {
     GameLevelManager::sharedState()->m_levelManagerDelegate = nullptr;

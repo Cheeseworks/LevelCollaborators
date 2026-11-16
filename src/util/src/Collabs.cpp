@@ -7,7 +7,7 @@
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
-using namespace cw::levelcollab;
+using namespace cw::lvlcollab;
 
 Result<CollaboratorIcon> matjson::Serialize<CollaboratorIcon>::fromJson(matjson::Value const& value) {
     GEODE_UNWRAP_INTO(auto icon, value["icon"].asUInt());
@@ -36,18 +36,20 @@ matjson::Value matjson::Serialize<CollaboratorIcon>::toJson(CollaboratorIcon con
 
 Result<Collaborator> matjson::Serialize<Collaborator>::fromJson(matjson::Value const& value) {
     GEODE_UNWRAP_INTO(auto accountID, value["account_id"].asInt());
+    GEODE_UNWRAP_INTO(auto userID, value["user_id"].asInt());
     GEODE_UNWRAP_INTO(auto name, value["name"].asString());
     GEODE_UNWRAP_INTO(auto icon, value["icon"].as<CollaboratorIcon>());
     GEODE_UNWRAP_INTO(auto _type, value["type"].asUInt());
 
     auto type = (CollaboratorType)_type;
 
-    return Ok(Collaborator::create(accountID, std::move(name), icon, type));
+    return Ok(Collaborator::create(accountID, userID, std::move(name), icon, type));
 }
 
 matjson::Value matjson::Serialize<Collaborator>::toJson(Collaborator const& value) {
     Value out;
     out["account_id"] = value.getAccountID();
+    out["user_id"] = value.getUserID();
     out["name"] = value.getName();
     out["icon"] = value.getIcon();
     out["type"] = (uint8_t)value.getType();

@@ -3,21 +3,23 @@
 #include "DLL.hpp"
 
 #include <Geode/Result.hpp>
-
 #include <Geode/Bindings.hpp>
 
-namespace cw::levelcollab {
+#include <Geode/utils/ZStringView.hpp>
+
+namespace cw::lvlcollab {
     // Type of work a collaborator did
     enum class CollaboratorType : uint8_t {
-        SpecialThanks = 0,  // Thank them for being there, or did miscellaneous work!
-        Playtesting = 1,    // Tested the level for bugs and gameplay quality
-        Optimization = 2,   // Optimized groups and/or objects
-        Effects = 3,        // Added additional visual effects
-        Merging = 4,        // Merged different sections of the level
-        Gameplay = 5,       // Worked on the layout and general gameplay
-        Decoration = 6,     // Decorated the level
-        Art = 7,            // Created custom art and/or themed assets for the level
-        Music = 8,          // Composed or selected the music for the level
+        SpecialThanks,  // Thank them for being there, or did miscellaneous work!
+        Playtesting,    // Tested the level for bugs and gameplay quality
+        Optimization,   // Optimized groups and/or objects
+        Effects,        // Added additional visual effects
+        Merging,        // Merged different sections of the level
+        Gameplay,       // Worked on the layout and general gameplay
+        Decoration,     // Decorated the level
+        Art,            // Created custom art and/or themed assets for the level
+        Music,          // Composed or selected the music for the level
+        Verifier,       // Verified the level
     };
 
     struct CollaboratorIcon final {
@@ -57,6 +59,7 @@ namespace cw::levelcollab {
     struct Collaborator final {
     private:
         int m_accountID;
+        int m_userID;
         std::string m_name;
         CollaboratorIcon m_icon;
         CollaboratorType m_type;
@@ -64,6 +67,7 @@ namespace cw::levelcollab {
     protected:
         Collaborator(
             int accountID,
+            int userID,
             std::string name,
             CollaboratorIcon icon,
             CollaboratorType type
@@ -72,11 +76,12 @@ namespace cw::levelcollab {
     public:
         Collaborator() = default;
 
-        static Collaborator create(int accountID, std::string name, CollaboratorIcon icon, CollaboratorType type);
-        static void createAsync(int accountID, CollaboratorType type, geode::CopyableFunction<void(geode::Result<Collaborator>)> callback);
+        static Collaborator create(int accountID, int userID, std::string name, CollaboratorIcon icon, CollaboratorType type);
+        static void createAsync(int accountID, int userID, CollaboratorType type, geode::CopyableFunction<void(geode::Result<Collaborator>)> callback);
 
-        [[nodiscard]] CW_LEVELCOLLAB_API_DLL geode::ZStringView getName() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getAccountID() const noexcept;
+        [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getUserID() const noexcept;
+        [[nodiscard]] CW_LEVELCOLLAB_API_DLL geode::ZStringView getName() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL CollaboratorIcon const& getIcon() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL CollaboratorType getType() const noexcept;
 
@@ -147,4 +152,6 @@ namespace cw::levelcollab {
 
     CW_LEVELCOLLAB_API_DLL void requestCollabForLevel(int levelID, geode::CopyableFunction<void(Collaboration)>&& callback);
     CW_LEVELCOLLAB_API_DLL void getCollaboratorInfo(int accountID, geode::CopyableFunction<void(geode::Result<GJUserScore*>)>&& callback);
+
+    CW_LEVELCOLLAB_API_DLL geode::ZStringView getCollabTypeName(CollaboratorType type) noexcept;
 };
