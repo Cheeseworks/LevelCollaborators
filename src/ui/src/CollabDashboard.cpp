@@ -57,6 +57,13 @@ menu::DashboardInvites* menu::DashboardInvites::create(CCSize const& size) {
 bool menu::DashboardManage::init(CCSize const& size) {
     if (!CollabDashboardMenu::init(size)) return false;
 
+    DelegateDirector::get()->searchUserLevels(25777059, [](Result<CCArrayExt<GJGameLevel*>> res) {
+        if (res.isErr()) return log::error("Failed to search for user: {}", res.unwrapErr());
+
+        auto levels = std::move(res).unwrap();
+        log::info("Found {} levels!", levels.size());
+    });
+
     return true;
 }
 
@@ -140,33 +147,31 @@ bool CollabDashboard::init() {
 
     addChildAtPosition(btnContainer, Anchor::BottomRight, { -12.5f, 12.5f }, false);
 
-    auto btns = std::to_array<cw::ui::LinkButton>(
-        {
-            {
-                "kofi-btn",
-                "gift.png"_gode,
-                [](auto) {
-                    openSupportPopup(Mod::get());
-                },
+    auto btns = std::array{
+        cw::ui::LinkButton{
+            "kofi-btn",
+            "gift.png"_gode,
+            [](auto) {
+                openSupportPopup(Mod::get());
             },
-            {
-                "discord-btn",
-                "gj_discordIcon_001.png",
-                [](auto) {
-                    createQuickPopup(
-                        "Discord Community",
-                        "Join <cd>Cheeseworks</c>'s <cb>Discord server</c>?\n"
-                        "<cs>Get help, report bugs, and chat with other players!</c>",
-                        "Cancel",
-                        "OK",
-                        [](auto, bool ok) {
-                            if (ok) web::openLinkInBrowser("https://www.dsc.gg/cheeseworks");
-                        }
-                    );
-                },
+        },
+        cw::ui::LinkButton{
+            "discord-btn",
+            "gj_discordIcon_001.png",
+            [](auto) {
+                createQuickPopup(
+                    "Discord Community",
+                    "Join <cd>Cheeseworks</c>'s <cb>Discord server</c>?\n"
+                    "<cs>Get help, report bugs, and chat with other players!</c>",
+                    "Cancel",
+                    "OK",
+                    [](auto, bool ok) {
+                        if (ok) web::openLinkInBrowser("https://www.dsc.gg/cheeseworks");
+                    }
+                );
             },
-        }
-    );
+        },
+    };
 
     for (auto& b : btns) {
         auto btn = Button::createWithSpriteFrameName(

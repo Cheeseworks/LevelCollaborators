@@ -24,16 +24,8 @@ bool CollabPopupCell::init(Collaborator const& collaber, bool owner, float width
 
     addChildAtPosition(icon, Anchor::Left, { 25.0f, 0.0f });
 
-    auto name = Button::createWithLabel(
-        collaber.getName(),
-        cw::ui::font::big,
-        [id = collaber.getAccountID()](auto) {
-            ProfilePage::create(id, false)->show();
-        }
-    );
-    name->setID("view-profile-btn");
-    name->setScale(std::min(0.625f, name->getScaledContentWidth() / (width - 125.0f)));
-    name->setScaleMultiplier(1.125f);
+    auto name = cw::ui::createProfileBtn(collaber.getName(), collaber.getAccountID());
+    name->setScale(std::min(0.625f, name->getScaledContentWidth() / (getContentWidth() - 125.0f)));
 
     addChildAtPosition(name, Anchor::Left, { 50.0f + (name->getScaledContentWidth() * 0.5f), 7.5f });
 

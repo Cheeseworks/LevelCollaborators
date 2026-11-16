@@ -7,10 +7,10 @@
 namespace cw::lvlcollab {
     class CollabPopupCell final : public cocos2d::CCNode {
     protected:
-        bool init(Collaborator const& collaborator, bool owner, float width);
+        bool init(Collaborator const& collaber, bool owner, float width);
 
     public:
-        static CollabPopupCell* create(Collaborator const& collaborator, bool owner, float width);
+        static CollabPopupCell* create(Collaborator const& collaber, bool owner, float width);
     };
 
     class CollabPopup final : public geode::Popup {

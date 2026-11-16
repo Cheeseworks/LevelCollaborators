@@ -7,6 +7,8 @@
 #include <ui/Include.h>
 #include <util/Include.h>
 
+#include <cue/Util.hpp>
+
 #include <Geode/Geode.hpp>
 
 namespace cw::lvlcollab {
