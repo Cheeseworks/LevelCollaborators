@@ -2,8 +2,6 @@
 
 #include <API.h>
 
-#include <cue/ListNode.hpp>
-
 #include <Geode/Geode.hpp>
 
 namespace cw::lvlcollab {

@@ -122,7 +122,7 @@ void DelegateDirector::getUserInfoFailed(int id) {
 void DelegateDirector::searchLevel(int levelID, LevelSearchCallback callback) {
     auto glm = GameLevelManager::sharedState();
 
-    auto obj = GJSearchObject::create(SearchType::Search, cw::str::fmtNum(levelID));
+    auto obj = GJSearchObject::create(SearchType::Search, cw::fmtNum(levelID));
     m_levelCallbacks[obj->getKey()] = std::move(callback);
 
 #ifdef CW_TESTING

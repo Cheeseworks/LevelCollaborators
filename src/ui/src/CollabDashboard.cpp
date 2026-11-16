@@ -276,7 +276,7 @@ bool CollabDashboard::init() {
 
     tabContainer->updateLayout();
 
-    cw::ui::nodes::addHelpButton(this, "This is your <cg>Level Collab dashboard</c>, you can <cy>manage your own level collaborations</c> or <cy>review invites from others</c>.", false, 0.875f, { -7.5f, -7.5f });
+    cw::ui::addHelpButton(this, "This is your <cg>Level Collab dashboard</c>, you can <cy>manage your own level collaborations</c> or <cy>review invites from others</c>.", false, 0.875f, { -7.5f, -7.5f });
 
     switchMenu(CollabMenuType::Invites);
 

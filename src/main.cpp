@@ -85,7 +85,7 @@ class $modify(LCLevelCell, LevelCell) {
                 }
             );
             btn->setID("collaboration-btn"_spr);
-            btn->setScale(std::min(0.925f, btn->getScaledContentWidth() / 75.0f));
+            btn->setScale(std::min(0.975f, btn->getScaledContentWidth() / 75.0f));
             btn->setPosition({ nameLabel->getPositionX() + (btn->getScaledContentWidth() * 0.5f) + 1.25f, nameLabel->getPositionY() - 22.5f });
 
             m_mainLayer->addChild(btn, 1);

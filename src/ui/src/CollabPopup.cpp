@@ -6,6 +6,8 @@
 
 #include <rhatt/prelude.h>
 
+#include <cue/ListNode.hpp>
+
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
@@ -45,7 +47,7 @@ bool CollabPopupCell::init(Collaborator const& collaber, bool owner, float width
     auto moreBtn = Button::createWithNode(
         ButtonSprite::create("More", cw::ui::font::big, owner ? "GJ_button_02.png" : "GJ_button_01.png"),
         [id = collaber.getUserID()](auto) {
-            pushSceneWithLayer(LevelBrowserLayer::create(GJSearchObject::create(SearchType::UsersLevels, cw::str::fmtNum(id))));
+            pushSceneWithLayer(LevelBrowserLayer::create(GJSearchObject::create(SearchType::UsersLevels, cw::fmtNum(id))));
         }
     );
     moreBtn->setID("view-levels-btn");
@@ -60,6 +62,8 @@ bool CollabPopupCell::init(Collaborator const& collaber, bool owner, float width
         color->setZOrder(-9);
 
         addChildAtPosition(color, Anchor::Center);
+
+        name->setColor({ 255, 255, 165 });
     };
 
     return true;
@@ -99,7 +103,7 @@ bool CollabPopup::init(GJGameLevel* level, Collaboration const& collab) {
 
     m_mainLayer->addChildAtPosition(list, Anchor::Center, { 0.0f, -10.0f });
 
-    cw::ui::nodes::addHelpButton(m_mainLayer, fmt::format("This is the <cg>collaborator list</c> for the level <cc>{}</c>. Feel free to <cy>check out everyone's creations</c>!", level->m_levelName));
+    cw::ui::addHelpButton(m_mainLayer, fmt::format("This is the <cg>collaborator list</c> for the level <cc>{}</c>. Feel free to <cy>check out everyone's creations</c>!", level->m_levelName));
 
     return true;
 }
