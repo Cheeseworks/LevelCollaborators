@@ -288,7 +288,7 @@ bool CollabDashboard::init() {
         CollabDashboardMenu* menu;
     };
 
-    auto dbs = std::array{
+    auto const dbs = std::array{
         DashboardData{
             CollabMenuType::Invites,
             menu::DashboardInvites::create(dbSize),
@@ -353,7 +353,7 @@ bool CollabDashboard::init() {
         auto btn = Button::createWithNode(
             spr,
             [this, tab = t.tab](auto) {
-                this->switchMenu(tab);
+                switchMenu(tab);
             }
         );
         btn->setID(std::move(t.id));

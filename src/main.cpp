@@ -78,14 +78,14 @@ class $modify(LCLevelCell, LevelCell) {
             auto nameLabel = m_mainLayer->getChildByID("level-name");
 
             auto btn = Button::createWithLabel(
-                collab.getFormattedString(),
+                collab->getFormattedString(),
                 cw::ui::font::gold,
-                [this, collab = std::move(collab)](auto) {
-                    CollabPopup::create(m_level, collab)->show();
+                [this, collab](auto) {
+                    CollabPopup::create(m_level, *collab)->show();
                 }
             );
             btn->setID("collaboration-btn"_spr);
-            btn->setScale(std::min(0.975f, btn->getScaledContentWidth() / 75.0f));
+            btn->setScale(std::min(0.65f, btn->getScaledContentWidth() / 12.5f));
             btn->setPosition({ nameLabel->getPositionX() + (btn->getScaledContentWidth() * 0.5f) + 1.25f, nameLabel->getPositionY() - 22.5f });
 
             m_mainLayer->addChild(btn, 1);
@@ -110,14 +110,14 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
             auto creatorMenu = getChildByID("creator-info-menu");
 
             auto btn = Button::createWithLabel(
-                collab.getFormattedString(),
+                collab->getFormattedString(),
                 cw::ui::font::gold,
-                [this, collab = std::move(collab)](auto) {
-                    CollabPopup::create(m_level, collab)->show();
+                [this, collab](auto) {
+                    CollabPopup::create(m_level, *collab)->show();
                 }
             );
             btn->setID("collaboration-btn"_spr);
-            btn->setScale(std::min(0.825f, btn->getScaledContentWidth() / 75.0f));
+            btn->setScale(std::min(0.75f, btn->getScaledContentWidth() / 75.0f));
             btn->setPosition({ creatorMenu->getPositionX(), creatorMenu->getPositionY() + 11.25f });
 
             if (auto copyTag = getChildByID("copy-indicator")) {

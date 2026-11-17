@@ -56,8 +56,8 @@ namespace cw::lvlcollab {
 
     class CollabDashboard final : public cocos2d::CCLayer {
     private:
-        std::unordered_map<CollabMenuType, geode::Ref<CollabDashboardMenu>> m_menus;
         std::unordered_map<CollabMenuType, geode::Ref<geode::GeodeTabSprite>> m_tabs;
+        std::unordered_map<CollabMenuType, geode::Ref<CollabDashboardMenu>> m_menus;
 
         void switchMenu(CollabMenuType type);
 

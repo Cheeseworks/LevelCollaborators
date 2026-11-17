@@ -1,5 +1,7 @@
 #include <API.h>
 
+#include <ranges>
+
 #include <Util.h>
 
 #include <asp/iter.hpp>
@@ -102,21 +104,8 @@ CollaboratorType Collaborator::getType() const noexcept {
     return m_type;
 }
 
-void Collaborator::reloadInfo(CopyableFunction<void(Result<Collaborator>)>&& callback) {
-    getCollaboratorInfo(getAccountID(), [cb = std::move(callback), this](Result<GJUserScore*> res) {
-        if (res.isErr()) {
-            log::error("Failed to reload collaborator info: {}", res.unwrapErr());
-            return cb(Err(res.unwrapErr()));
-        };
-
-        auto userInfo = res.unwrapOrDefault();
-
-        m_name = userInfo->m_userName;
-        m_accountID = userInfo->m_accountID;
-        m_icon = CollaboratorIcon::create(userInfo->m_iconID, userInfo->m_iconType, userInfo->m_color1, userInfo->m_color2, userInfo->m_color3, userInfo->m_glowEnabled);
-
-        cb(Ok(*this));
-    });
+Collaborator::ServerResult Collaborator::reloadInfo() {
+    co_return Err("");
 }
 
 Collaboration::Collaboration(
@@ -129,8 +118,9 @@ Collaboration::Collaboration(
     m_id(id),
     m_levelID(levelID),
     m_levelName(std::move(levelName)),
-    m_owner(std::move(owner)),
-    m_collaborators(std::move(collaborators)) {}
+    m_owner(std::move(owner)) {
+    for (auto& c : collaborators) m_collaborators[c.getAccountID()] = std::move(c);
+}
 
 Collaboration Collaboration::create(uint64_t id, int levelID, std::string levelName, Collaborator owner, std::vector<Collaborator> collaborators) {
     auto cm = CollaborationManager::get();
@@ -140,7 +130,7 @@ Collaboration Collaboration::create(uint64_t id, int levelID, std::string levelN
 #endif
 
     auto cRes = cm->getCollab(levelID);
-    if (cRes.isOk()) return std::move(cRes).unwrap();
+    if (cRes.isOk()) return *std::move(cRes).unwrap();
 
 #ifdef CW_TESTING
     log::debug("Creating new collaboration for level {} with {} creators", levelID, collaborators.size());
@@ -168,23 +158,52 @@ Collaborator const& Collaboration::getOwner() const noexcept {
     return m_owner;
 }
 
-std::span<const Collaborator> Collaboration::getCollaborators() const noexcept {
+std::map<int, Collaborator> const& Collaboration::getCollaborators() const noexcept {
     return m_collaborators;
 }
 
+Result<Collaborator const*> Collaboration::getCollaborator(int accountID) const {
+    if (m_owner.getAccountID() == accountID) return Ok(&m_owner);
+    if (auto const it = m_collaborators.find(accountID); it != m_collaborators.end()) return Ok(&it->second);
+
+    return Err("No collaborator with account ID {} found", accountID);
+}
+
+std::vector<Collaborator const*> Collaboration::getAllCollaborators(bool includeOwner) const {
+    std::vector<Collaborator const*> out;
+    out.reserve(m_collaborators.size() + (includeOwner ? 1 : 0));
+
+    if (includeOwner) out.push_back(&m_owner);
+    for (auto const& c : m_collaborators | std::views::values) out.push_back(&c);
+
+    std::ranges::sort(out, std::ranges::greater{}, &Collaborator::getType);
+
+    return out;
+}
+
+std::vector<Collaborator> Collaboration::copyAllCollaborators(bool includeOwner) const {
+    auto const collabers = getAllCollaborators(includeOwner);
+
+    std::vector<Collaborator> out;
+    out.reserve(collabers.size());
+
+    for (auto const& c : collabers) out.push_back(*c);
+
+    return out;
+}
+
 GJGameLevel* Collaboration::getGJLevel() const {
-    if (auto glm = GameLevelManager::sharedState()) return glm->getSavedLevel(m_levelID);
-    return nullptr;
+    return GameLevelManager::sharedState()->getSavedLevel(m_levelID);
 }
 
 std::string Collaboration::getFormattedString(bool prefix) const {
     auto const& owner = getOwner();
+    auto const collabers = getAllCollaborators(false);
 
-    if (getCollaborators().size() > 2) {
-        return fmt::format("{}{} & {} more", prefix ? "By " : "", owner.getName(), getCollaborators().size() - 1);
-    } else if (getCollaborators().size() >= 1) {
-        std::string other = getCollaborators()[0].getName();
-
+    if (collabers.size() >= 2) {
+        return fmt::format("{}{} & {} more", prefix ? "By " : "", owner.getName(), collabers.size());
+    } else if (collabers.size() >= 1) {
+        auto other = collabers[0]->getName();
         if (other.empty()) return fmt::format("{}{} & more", prefix ? "By " : "", owner.getName());
 
         return fmt::format("{}{} & {}", prefix ? "By " : "", owner.getName(), other);
@@ -204,8 +223,8 @@ void CollaborationManager::registerCollab(Collaboration collab) {
     m_impl->collaborations[collab.getLevelID()] = std::move(collab);
 }
 
-Result<Collaboration> CollaborationManager::getCollab(int levelID) const noexcept {
-    if (auto const it = m_impl->collaborations.find(levelID); it != m_impl->collaborations.end()) return Ok(it->second);
+Result<Collaboration const*> CollaborationManager::getCollab(int levelID) const noexcept {
+    if (auto const it = m_impl->collaborations.find(levelID); it != m_impl->collaborations.end()) return Ok(&it->second);
     return Err("Collaboration not found");
 }
 
@@ -213,11 +232,11 @@ std::vector<Collaboration> CollaborationManager::getCollabs() const noexcept {
     std::vector<Collaboration> out;
     out.reserve(m_impl->collaborations.size());
 
-    for (auto const& collab : m_impl->collaborations) out.push_back(collab.second);
+    for (auto const& collab : m_impl->collaborations | std::views::values) out.push_back(collab);
     return out;
 }
 
-Result<Collaboration> CollaborationManager::getCollabForLevel(int levelID) const noexcept {
+Result<Collaboration const*> CollaborationManager::getCollabForLevel(int levelID) const noexcept {
     return getCollab(levelID);
 }
 
@@ -227,9 +246,6 @@ CollaborationManager* CollaborationManager::get() noexcept {
 }
 
 void cw::lvlcollab::requestCollabForLevel(int levelID, CopyableFunction<void(Collaboration)>&& callback) {
-}
-
-void cw::lvlcollab::getCollaboratorInfo(int accountID, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {
 }
 
 ZStringView cw::lvlcollab::getCollabTypeName(CollaboratorType type) noexcept {

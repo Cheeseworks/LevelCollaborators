@@ -79,7 +79,7 @@ matjson::Value matjson::Serialize<Collaboration>::toJson(Collaboration const& va
     out["level_id"] = value.getLevelID();
     out["level_name"] = value.getLevelName();
     out["owner"] = value.getOwner();
-    out["collaborators"] = value.getCollaborators();
+    out["collaborators"] = value.copyAllCollaborators();
 
     return out;
 }

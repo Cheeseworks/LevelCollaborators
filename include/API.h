@@ -2,6 +2,8 @@
 
 #include "DLL.hpp"
 
+#include <arc/future/Future.hpp>
+
 #include <Geode/Result.hpp>
 #include <Geode/Bindings.hpp>
 
@@ -57,6 +59,8 @@ namespace cw::lvlcollab {
     };
 
     struct Collaborator final {
+        using ServerResult = arc::Future<geode::Result<Collaborator>>;
+
     private:
         int m_accountID;
         int m_userID;
@@ -85,16 +89,18 @@ namespace cw::lvlcollab {
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL CollaboratorIcon const& getIcon() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL CollaboratorType getType() const noexcept;
 
-        void reloadInfo(geode::CopyableFunction<void(geode::Result<Collaborator>)>&& callback);
+        CW_LEVELCOLLAB_API_DLL ServerResult reloadInfo();
     };
 
     struct Collaboration final {
+        using ServerResult = arc::Future<geode::Result<Collaboration>>;
+
     private:
         uint64_t m_id = 0;
         int m_levelID = -1;
         std::string m_levelName;
         Collaborator m_owner;
-        std::vector<Collaborator> m_collaborators;
+        std::map<int, Collaborator> m_collaborators;
 
     protected:
         Collaboration(
@@ -114,10 +120,16 @@ namespace cw::lvlcollab {
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getLevelID() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL geode::ZStringView getLevelName() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL Collaborator const& getOwner() const noexcept;
-        [[nodiscard]] CW_LEVELCOLLAB_API_DLL std::span<const Collaborator> getCollaborators() const noexcept;
+        [[nodiscard]] CW_LEVELCOLLAB_API_DLL std::map<int, Collaborator> const& getCollaborators() const noexcept;
+
+        CW_LEVELCOLLAB_API_DLL geode::Result<Collaborator const*> getCollaborator(int accountID) const;
+        CW_LEVELCOLLAB_API_DLL std::vector<Collaborator const*> getAllCollaborators(bool includeOwner = true) const;
+        CW_LEVELCOLLAB_API_DLL std::vector<Collaborator> copyAllCollaborators(bool includeOwner = true) const;
 
         CW_LEVELCOLLAB_API_DLL GJGameLevel* getGJLevel() const;
         CW_LEVELCOLLAB_API_DLL std::string getFormattedString(bool prefix = true) const;
+
+        CW_LEVELCOLLAB_API_DLL ServerResult reloadInfo();
     };
 
     class CW_LEVELCOLLAB_API_DLL CollaborationManager final {
@@ -140,18 +152,17 @@ namespace cw::lvlcollab {
 
         void registerCollab(Collaboration collab);
 
-        geode::Result<Collaboration> getCollab(int levelID) const noexcept;
+        geode::Result<Collaboration const*> getCollab(int levelID) const noexcept;
 
     public:
         static CollaborationManager* get() noexcept;
 
         std::vector<Collaboration> getCollabs() const noexcept;
 
-        geode::Result<Collaboration> getCollabForLevel(int levelID) const noexcept;
+        geode::Result<Collaboration const*> getCollabForLevel(int levelID) const noexcept;
     };
 
     CW_LEVELCOLLAB_API_DLL void requestCollabForLevel(int levelID, geode::CopyableFunction<void(Collaboration)>&& callback);
-    CW_LEVELCOLLAB_API_DLL void getCollaboratorInfo(int accountID, geode::CopyableFunction<void(geode::Result<GJUserScore*>)>&& callback);
 
     CW_LEVELCOLLAB_API_DLL geode::ZStringView getCollabTypeName(CollaboratorType type) noexcept;
 };
