@@ -44,6 +44,7 @@ bool CollabLevelCell::init(GJGameLevel* level, float width) {
     cue::attachBackground(
         this,
         {
+            .opacity = 255,
             .sidePadding = 0.f,
             .verticalPadding = 0.f,
             .texture = "white-square.png"_gode,
@@ -53,9 +54,17 @@ bool CollabLevelCell::init(GJGameLevel* level, float width) {
 
     auto diff = GJDifficultySprite::create(cw::lvl::getDiffSpriteNum(level), GJDifficultyName::Short);
     diff->setID("difficulty-icon");
+    diff->setScale(0.75f);
     diff->updateFeatureStateFromLevel(level);
 
-    addChildAtPosition(diff, Anchor::Left, { 25.0f, 0.0f });
+    addChildAtPosition(diff, Anchor::Left, { 20.0f, 0.0f });
+
+    auto name = Label::create(level->m_levelName, cw::ui::font::big);
+    name->setID("level-name-label");
+    name->setAnchorPoint({ 0.0f, 0.5f });
+    name->setLimitLabelWidth(getContentWidth() - 65.0f, 0.75f);
+
+    addChildAtPosition(name, Anchor::Left, { 37.5f, 0.0f });
 
     return true;
 }

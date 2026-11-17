@@ -54,15 +54,89 @@ menu::DashboardInvites* menu::DashboardInvites::create(CCSize const& size) {
     return nullptr;
 }
 
+CCArrayExt<GJGameLevel*> menu::DashboardManage::s_levels;
+
+void menu::DashboardManage::showUI() {
+    m_loading->setVisible(false);
+
+    m_nothingLabel->setVisible(s_levels.empty());
+    m_levelList->setVisible(!s_levels.empty());
+}
+
+void menu::DashboardManage::loadLevelList(bool error) {
+    m_loadingPage = 0;
+
+    for (auto const& lvl : s_levels) m_levelList->m_contentLayer->addChild(CollabLevelCell::create(lvl, m_levelList->getScaledContentWidth()));
+    m_levelList->m_contentLayer->updateLayout();
+    m_levelList->scrollToTop();
+
+    showUI();
+}
+
+void menu::DashboardManage::requestNextBatch() {
+    DelegateDirector::get()->searchUserLevels(25777059, m_loadingPage, [self = WeakRef(this)](Result<CCArrayExt<GJGameLevel*>> res) {
+        if (auto s = self.lock()) {
+            if (res.isErr()) {
+                log::error("Failed to search for user: {}", res.unwrapErr());
+                s->loadLevelList(true);
+
+                return;
+            };
+
+            auto const levels = std::move(res).unwrap();
+            log::info("Found {} levels!", levels.size());
+
+            if (levels.empty()) return s->loadLevelList();
+
+            for (auto const& lvl : levels) {
+                if (!lvl->m_unlisted || !lvl->m_friendsOnly) menu::DashboardManage::s_levels.push_back(lvl);
+            };
+
+            if (levels.size() >= 10) {
+                s->m_loadingPage++;
+                s->requestNextBatch();
+
+                return;
+            };
+
+            s->loadLevelList();
+        };
+    });
+}
+
 bool menu::DashboardManage::init(CCSize const& size) {
     if (!CollabDashboardMenu::init(size)) return false;
 
-    DelegateDirector::get()->searchUserLevels(25777059, [](Result<CCArrayExt<GJGameLevel*>> res) {
-        if (res.isErr()) return log::error("Failed to search for user: {}", res.unwrapErr());
+    m_levelList = ScrollLayer::create(size * 0.925f);
+    m_levelList->setID("level-list");
+    m_levelList->setVisible(false);
 
-        auto levels = std::move(res).unwrap();
-        log::info("Found {} levels!", levels.size());
-    });
+    m_levelList->m_contentLayer->setLayout(ScrollLayer::createDefaultListLayout(3.75f));
+
+    addChildAtPosition(m_levelList, Anchor::Center);
+
+    m_levelList->m_contentLayer->updateLayout();
+    m_levelList->scrollToTop();
+
+    m_loading = LoadingSpinner::create(32.5f);
+    m_loading->setZOrder(1);
+
+    addChildAtPosition(m_loading, Anchor::Center);
+
+    m_nothingLabel = Label::create("You have no public levels available.", cw::ui::font::gold);
+    m_nothingLabel->setID("nothing-yet-label");
+    m_nothingLabel->setScale(0.625f);
+    m_nothingLabel->setAlignment(Label::Alignment::Center);
+    m_nothingLabel->setVisible(false);
+    m_nothingLabel->setZOrder(9);
+
+    addChildAtPosition(m_nothingLabel, Anchor::Center);
+
+    if (s_levels.empty()) {
+        requestNextBatch();
+    } else {
+        showUI();
+    };
 
     return true;
 }

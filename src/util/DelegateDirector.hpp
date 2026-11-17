@@ -28,7 +28,7 @@ namespace cw::lvlcollab {
         void searchLevel(int levelID, LevelCallback callback);
         void searchUser(std::string username, UserCallback callback);
 
-        void searchUserLevels(int userID, LevelListCallback callback);
+        void searchUserLevels(int userID, int page, LevelListCallback callback);
 
         void searchUserByID(int accountID, UserCallback callback);
     };

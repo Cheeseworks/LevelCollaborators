@@ -13,7 +13,7 @@ void DelegateDirector::loadLevelsFinished(CCArray* search, const char* key, int)
     GameLevelManager::sharedState()->m_levelManagerDelegate = nullptr;
 
 #ifdef CW_TESTING
-    log::debug("Received finished request with key {}", key);
+    log::trace("Received finished request with key {}", key);
 #endif
 
     if (auto const it = m_levelCallbacks.find(key); it != m_levelCallbacks.end()) {
@@ -137,10 +137,12 @@ void DelegateDirector::searchUser(std::string username, UserCallback callback) {
     glm->getUsers(obj);
 }
 
-void DelegateDirector::searchUserLevels(int userID, LevelListCallback callback) {
+void DelegateDirector::searchUserLevels(int userID, int page, LevelListCallback callback) {
     auto glm = GameLevelManager::sharedState();
 
     auto obj = GJSearchObject::create(SearchType::UsersLevels, cw::fmtNum(userID));
+    obj->m_page = page;
+
     m_levelListCallbacks[obj->getKey()] = std::move(callback);
 
 #ifdef CW_TESTING

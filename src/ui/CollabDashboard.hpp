@@ -26,6 +26,18 @@ namespace cw::lvlcollab {
         };
 
         class DashboardManage final : public CollabDashboardMenu {
+            int m_loadingPage = 0;  // to match types with the search obj
+            static geode::cocos::CCArrayExt<GJGameLevel*> s_levels;
+
+            geode::ScrollLayer* m_levelList = nullptr;
+            geode::LoadingSpinner* m_loading = nullptr;
+            geode::Label* m_nothingLabel = nullptr;
+
+            void showUI();
+
+            void loadLevelList(bool error = false);
+            void requestNextBatch();
+
         protected:
             bool init(cocos2d::CCSize const& size) override;
 
