@@ -100,7 +100,7 @@ namespace cw::lvlcollab {
         int m_levelID = -1;
         std::string m_levelName;
         Collaborator m_owner;
-        std::map<int, Collaborator> m_collaborators;
+        std::unordered_map<int, Collaborator> m_collaborators;
 
     protected:
         Collaboration(
@@ -120,7 +120,7 @@ namespace cw::lvlcollab {
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL int getLevelID() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL geode::ZStringView getLevelName() const noexcept;
         [[nodiscard]] CW_LEVELCOLLAB_API_DLL Collaborator const& getOwner() const noexcept;
-        [[nodiscard]] CW_LEVELCOLLAB_API_DLL std::map<int, Collaborator> const& getCollaborators() const noexcept;
+        [[nodiscard]] CW_LEVELCOLLAB_API_DLL std::unordered_map<int, Collaborator> const& getCollaborators() const noexcept;
 
         CW_LEVELCOLLAB_API_DLL geode::Result<Collaborator const*> getCollaborator(int accountID) const;
         CW_LEVELCOLLAB_API_DLL std::vector<Collaborator const*> getAllCollaborators(bool includeOwner = true) const;

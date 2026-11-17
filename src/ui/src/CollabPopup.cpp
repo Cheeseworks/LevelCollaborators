@@ -1,7 +1,5 @@
 #include "../CollabPopup.hpp"
 
-#include <ranges>
-
 #include <Util.h>
 
 #include <API.h>
@@ -94,7 +92,7 @@ bool CollabPopup::init(GJGameLevel* level, Collaboration const& collab) {
     list->setID("collaber-list");
 
     list->addCell(CollabPopupCell::create(collab.getOwner(), true, list->getScaledContentWidth()));
-    for (auto const& c : collab.getCollaborators() | std::views::values) list->addCell(CollabPopupCell::create(c, false, list->getScaledContentWidth()));
+    for (auto const& c : collab.getAllCollaborators(false)) list->addCell(CollabPopupCell::create(*c, false, list->getScaledContentWidth()));
 
     m_mainLayer->addChildAtPosition(list, Anchor::Center, { 0.0f, -10.0f });
 

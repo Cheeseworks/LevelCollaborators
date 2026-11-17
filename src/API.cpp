@@ -158,7 +158,7 @@ Collaborator const& Collaboration::getOwner() const noexcept {
     return m_owner;
 }
 
-std::map<int, Collaborator> const& Collaboration::getCollaborators() const noexcept {
+std::unordered_map<int, Collaborator> const& Collaboration::getCollaborators() const noexcept {
     return m_collaborators;
 }
 
@@ -173,10 +173,10 @@ std::vector<Collaborator const*> Collaboration::getAllCollaborators(bool include
     std::vector<Collaborator const*> out;
     out.reserve(m_collaborators.size() + (includeOwner ? 1 : 0));
 
-    if (includeOwner) out.push_back(&m_owner);
     for (auto const& c : m_collaborators | std::views::values) out.push_back(&c);
+    std::ranges::sort(out, std::ranges::greater{}, &Collaborator::getType);
 
-    std::ranges::sort(out, std::ranges::greater{}, [](auto const& c) { return (uint8_t)c->getType(); });
+    if (includeOwner) out.insert(out.begin(), &m_owner);
 
     return out;
 }
