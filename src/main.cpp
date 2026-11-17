@@ -66,6 +66,10 @@ class $modify(LCMenuLayer, MenuLayer) {
 };
 
 class $modify(LCLevelCell, LevelCell) {
+    struct Fields final {
+        std::optional<Collaboration const*> collab = std::nullopt;
+    };
+
     void loadFromLevel(GJGameLevel* level) {
         LevelCell::loadFromLevel(level);
 
@@ -73,7 +77,10 @@ class $modify(LCLevelCell, LevelCell) {
 
         auto collabRes = cm->getCollabForLevel(m_level->m_levelID);
         if (collabRes.isOk()) {
-            auto collab = std::move(collabRes).unwrap();
+            auto f = m_fields.self();
+
+            f->collab = std::move(collabRes).unwrap();
+            auto const& collab = *f->collab;
 
             auto nameLabel = m_mainLayer->getChildByID("level-name");
 
@@ -85,17 +92,33 @@ class $modify(LCLevelCell, LevelCell) {
                 }
             );
             btn->setID("collaboration-btn"_spr);
-            btn->setScale(std::min(0.65f, btn->getScaledContentWidth() / 12.5f));
-            btn->setPosition({ nameLabel->getPositionX() + (btn->getScaledContentWidth() * 0.5f) + 1.25f, nameLabel->getPositionY() - 22.5f });
+            btn->setScaleMultiplier(1.125f);
+
+            limitNodeWidth(btn, 175.0f, 0.675f, 0.125f);
+
+            btn->setPosition({ nameLabel->getPositionX() + (btn->getScaledContentWidth() / 2.0f) + 1.25f, nameLabel->getPositionY() - 22.5f });
+
+            if (auto copyTag = m_mainLayer->getChildByID("copy-indicator")) copyTag->setPositionX(btn->getPositionX() + (btn->getScaledContentWidth() / 2.0f) + 3.75f);
 
             m_mainLayer->addChild(btn, 1);
 
             m_mainMenu->getChildByID("creator-name")->setVisible(false);
         };
     }
+
+    void onViewProfile(CCObject* sender) {
+        auto f = m_fields.self();
+        if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
+
+        LevelCell::onViewProfile(sender);
+    }
 };
 
 class $modify(LCLevelInfoLayer, LevelInfoLayer) {
+    struct Fields final {
+        std::optional<Collaboration const*> collab = std::nullopt;
+    };
+
     bool init(GJGameLevel* level, bool challenge) {
         if (!LevelInfoLayer::init(level, challenge)) return false;
 
@@ -105,7 +128,10 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
 
         auto collabRes = cm->getCollabForLevel(m_level->m_levelID);
         if (collabRes.isOk()) {
-            auto collab = std::move(collabRes).unwrap();
+            auto f = m_fields.self();
+
+            f->collab = std::move(collabRes).unwrap();
+            auto const& collab = *f->collab;
 
             auto creatorMenu = getChildByID("creator-info-menu");
 
@@ -117,8 +143,10 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
                 }
             );
             btn->setID("collaboration-btn"_spr);
-            btn->setScale(std::min(0.75f, btn->getScaledContentWidth() / 75.0f));
+            btn->setScaleMultiplier(1.125f);
             btn->setPosition({ creatorMenu->getPositionX(), creatorMenu->getPositionY() + 11.25f });
+
+            limitNodeWidth(btn, 215.0f, 0.675f, 0.125f);
 
             if (auto copyTag = getChildByID("copy-indicator")) {
                 copyTag->setPositionX((getScaledContentWidth() / 2.0f) + (btn->getScaledContentWidth() / 2.0f) + 5.0f);
@@ -130,5 +158,12 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
         }
 
         return true;
+    }
+
+    void onViewProfile(CCObject* sender) {
+        auto f = m_fields.self();
+        if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
+
+        LevelInfoLayer::onViewProfile(sender);
     }
 };

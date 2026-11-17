@@ -29,7 +29,7 @@ bool CollabPopupCell::init(Collaborator const& collaber, bool owner, float width
     auto name = cw::ui::createProfileBtn(collaber.getName(), collaber.getAccountID());
     name->setScale(std::min(0.625f, name->getScaledContentWidth() / (getContentWidth() - 125.0f)));
 
-    addChildAtPosition(name, Anchor::Left, { 50.0f + (name->getScaledContentWidth() * 0.5f), 7.5f });
+    addChildAtPosition(name, Anchor::Left, { 50.0f + (name->getScaledContentWidth() / 2.0f), 7.5f });
 
     auto role = Label::create(fmt::format("{}{}", owner ? "Publisher | " : "", getCollabTypeName(collaber.getType())), cw::ui::font::gold);
     role->setID("type-label");

@@ -176,7 +176,7 @@ std::vector<Collaborator const*> Collaboration::getAllCollaborators(bool include
     if (includeOwner) out.push_back(&m_owner);
     for (auto const& c : m_collaborators | std::views::values) out.push_back(&c);
 
-    std::ranges::sort(out, std::ranges::greater{}, &Collaborator::getType);
+    std::ranges::sort(out, std::ranges::greater{}, [](auto const& c) { return (uint8_t)c->getType(); });
 
     return out;
 }
@@ -201,10 +201,10 @@ std::string Collaboration::getFormattedString(bool prefix) const {
     auto const collabers = getAllCollaborators(false);
 
     if (collabers.size() >= 2) {
-        return fmt::format("{}{} & {} more", prefix ? "By " : "", owner.getName(), collabers.size());
+        return fmt::format("{}{} + {} more", prefix ? "By " : "", owner.getName(), collabers.size());
     } else if (collabers.size() >= 1) {
         auto other = collabers[0]->getName();
-        if (other.empty()) return fmt::format("{}{} & more", prefix ? "By " : "", owner.getName());
+        if (other.empty()) return fmt::format("{}{} + more", prefix ? "By " : "", owner.getName());
 
         return fmt::format("{}{} & {}", prefix ? "By " : "", owner.getName(), other);
     } else {

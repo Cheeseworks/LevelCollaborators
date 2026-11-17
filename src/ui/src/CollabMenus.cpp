@@ -142,7 +142,7 @@ bool CollabInviteeCell::init(GJUserScore* user, std::optional<Collaboration> con
     auto name = cw::ui::createProfileBtn(user);
     name->setScale(std::min(0.625f, name->getScaledContentWidth() / (getContentWidth() - 125.0f)));
 
-    addChildAtPosition(name, Anchor::Left, { 50.0f + (name->getScaledContentWidth() * 0.5f), 0.0f });
+    addChildAtPosition(name, Anchor::Left, { 50.0f + (name->getScaledContentWidth() / 2.0f), 0.0f });
 
     if (collab.has_value()) {
     } else {
