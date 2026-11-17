@@ -66,6 +66,13 @@ void menu::DashboardManage::showUI() {
 void menu::DashboardManage::loadLevelList(bool error) {
     m_loadingPage = 0;
 
+    if (error) {
+        s_levels.clear();
+        m_nothingLabel->setText("An error occurred.");
+    } else if (s_levels.empty()) {
+        m_nothingLabel->setText("You have no public levels available.");
+    };
+
     for (auto const& lvl : s_levels) m_levelList->m_contentLayer->addChild(CollabLevelCell::create(lvl, m_levelList->getScaledContentWidth()));
     m_levelList->m_contentLayer->updateLayout();
     m_levelList->scrollToTop();
@@ -78,7 +85,7 @@ void menu::DashboardManage::requestNextBatch() {
         if (auto s = self.lock()) {
             if (res.isErr()) {
                 log::error("Failed to search for user: {}", res.unwrapErr());
-                s->loadLevelList(true);
+                s->loadLevelList(s->s_levels.empty());
 
                 return;
             };
@@ -89,7 +96,7 @@ void menu::DashboardManage::requestNextBatch() {
             if (levels.empty()) return s->loadLevelList();
 
             for (auto const& lvl : levels) {
-                if (!lvl->m_unlisted || !lvl->m_friendsOnly) menu::DashboardManage::s_levels.push_back(lvl);
+                if (!lvl->m_unlisted || !lvl->m_friendsOnly) s->s_levels.push_back(lvl);
             };
 
             if (levels.size() >= 10) {
@@ -113,12 +120,16 @@ bool menu::DashboardManage::init(CCSize const& size) {
 
     m_levelList->m_contentLayer->setLayout(ScrollLayer::createDefaultListLayout(3.75f));
 
-    addChildAtPosition(m_levelList, Anchor::Center);
+    addChildAtPosition(m_levelList, Anchor::Center, { -7.5f, 0.0f });
+
+    auto levelListScroll = Scrollbar::create(m_levelList);
+
+    addChildAtPosition(levelListScroll, Anchor::Right, { -12.5f, 0.0f });
 
     m_levelList->m_contentLayer->updateLayout();
     m_levelList->scrollToTop();
 
-    m_loading = LoadingSpinner::create(32.5f);
+    m_loading = LoadingSpinner::create(65.0f);
     m_loading->setZOrder(1);
 
     addChildAtPosition(m_loading, Anchor::Center);
@@ -135,7 +146,7 @@ bool menu::DashboardManage::init(CCSize const& size) {
     if (s_levels.empty()) {
         requestNextBatch();
     } else {
-        showUI();
+        loadLevelList();
     };
 
     return true;

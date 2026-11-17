@@ -13,7 +13,13 @@ namespace cw::lvlcollab {
         static CollabCell* create(Collaboration const& collab, float width, bool invite = false);
     };
 
-    class CollabManagerPopup final : public geode::Popup {};
+    class CollabManagerPopup final : public geode::Popup {
+    protected:
+        bool init(GJGameLevel* level);
+
+    public:
+        static CollabManagerPopup* create(GJGameLevel* level);
+    };
 
     class CollabLevelCell final : public cocos2d::CCNode {
     protected:

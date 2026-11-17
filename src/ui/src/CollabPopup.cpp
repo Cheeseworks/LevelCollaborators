@@ -44,6 +44,7 @@ bool CollabPopupCell::init(Collaborator const& collaber, bool owner, float width
     );
     moreBtn->setID("view-levels-btn");
     moreBtn->setScale(0.625f);
+    moreBtn->setScaleMultiplier(1.125f);
 
     addChildAtPosition(moreBtn, Anchor::Right, { -(moreBtn->getScaledContentWidth() * 0.675f), 0.0f });
 
