@@ -6,6 +6,8 @@ module;
 
 #include <rhatt/prelude.h>
 
+#include <asp/iter.hpp>
+
 #include <Geode/Geode.hpp>
 
 #include <Geode/ui/Button.hpp>
