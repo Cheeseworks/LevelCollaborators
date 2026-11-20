@@ -14,10 +14,10 @@ module;
 #include <Geode/modify/LevelCell.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 
+module cw.lvlcollab;
+
 using namespace geode::prelude;
 using namespace cw::lvlcollab;
-
-module cw.lvlcollab;
 
 $on_mod(Loaded) {  // just for testing
     auto arcwf = Collaborator::create(7689052, 53843371, "ArcticWoof", CollaboratorIcon::create(290, IconType::Cube, 83, 12, 3, true), CollaboratorType::Decoration);
@@ -164,12 +164,12 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
         return true;
     }
 
-    // void onViewProfile(CCObject* sender) {
-    //     auto f = m_fields.self();
-    //     if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
+    void onViewProfile(CCObject* sender) {
+        auto f = m_fields.self();
+        if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
 
-    //     LevelInfoLayer::onViewProfile(sender);
-    // }
+        LevelInfoLayer::onViewProfile(sender);
+    }
 };
 
 void fetch::getUserByUsername(std::string_view username, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {

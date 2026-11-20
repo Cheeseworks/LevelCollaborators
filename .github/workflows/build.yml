@@ -11,10 +11,10 @@ jobs:
             matrix:
                 config:
                     - target: win
-                    # - target: macm1
-                    # - target: macintel
-                    # - target: android32
-                    # - target: android64
+                    - target: macm1
+                    - target: macintel
+                    - target: android32
+                    - target: android64
                     - target: ios
 
         name: Build ${{ matrix.config.target }}
