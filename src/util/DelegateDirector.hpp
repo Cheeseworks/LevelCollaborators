@@ -2,6 +2,8 @@
 
 #include <rhatt/base/Singleton.hpp>
 
+#include <Geode/Geode.hpp>
+
 namespace cw::lvlcollab {
     class DelegateDirector final : public base::Singleton<DelegateDirector>, public LevelManagerDelegate, public UserInfoDelegate {
         using LevelCallback = geode::Function<void(geode::Result<geode::Ref<GJGameLevel>>)>;
