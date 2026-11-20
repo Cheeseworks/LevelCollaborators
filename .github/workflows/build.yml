@@ -3,8 +3,6 @@ name: Build Geode Mod
 on:
     workflow_dispatch:
     push:
-        branches:
-            - "**"
 
 jobs:
     build:
@@ -13,11 +11,11 @@ jobs:
             matrix:
                 config:
                     - target: win
-                    # - target: macm1
-                    # - target: macintel
-                    # - target: ios
+                    - target: macm1
+                    - target: macintel
                     - target: android32
                     - target: android64
+                    - target: ios
 
         name: Build ${{ matrix.config.target }}
         runs-on: ubuntu-latest
@@ -30,6 +28,7 @@ jobs:
                   target: ${{ matrix.config.target }}
                   upload: true
                   sdk: nightly
+                  configure-args: "-DCW_TESTING=OFF"
 
     merge:
         name: Merge
