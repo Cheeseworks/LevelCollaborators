@@ -214,7 +214,7 @@ bool CollabDashboard::init() {
     auto title = Button::createWithLabel(
         "Level Collaborations",
         cw::ui::font::gold,
-        [](auto) {
+        [](Button*) {
             openInfoPopup(Mod::get());
         }
     );
@@ -240,14 +240,14 @@ bool CollabDashboard::init() {
         cw::ui::LinkButton{
             "kofi-btn",
             "gift.png"_gode,
-            [](auto) {
+            [](Button*) {
                 openSupportPopup(Mod::get());
             },
         },
         cw::ui::LinkButton{
             "discord-btn",
             "gj_discordIcon_001.png",
-            [](auto) {
+            [](Button*) {
                 createQuickPopup(
                     "Discord Community",
                     "Join <cd>Cheeseworks</c>'s <cb>Discord server</c>?\n"
@@ -356,7 +356,7 @@ bool CollabDashboard::init() {
         auto spr = GeodeTabSprite::create(t.sprite, std::move(t.label), 130.0f);
         auto btn = Button::createWithNode(
             spr,
-            [this, tab = t.tab](auto) {
+            [this, tab = t.tab](Button*) {
                 switchMenu(tab);
             }
         );

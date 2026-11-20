@@ -38,7 +38,7 @@ namespace cw::lvlcollab {
                     CircleBaseColor::Green,
                     alt ? CircleBaseSize::MediumAlt : CircleBaseSize::Medium
                 ),
-                [](auto) {
+                [](Button*) {
                     pushSceneWithLayer(CollabDashboard::create());
                 }
             );
@@ -91,7 +91,7 @@ class $modify(LCLevelCell, LevelCell) {
             auto btn = Button::createWithLabel(
                 collab->getFormattedString(),
                 cw::ui::font::gold,
-                [this, collab](auto) {
+                [this, collab](Button*) {
                     CollabPopup::create(m_level, *collab)->show();
                 }
             );
@@ -142,7 +142,7 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
             auto btn = Button::createWithLabel(
                 collab->getFormattedString(),
                 cw::ui::font::gold,
-                [this, collab](auto) {
+                [this, collab](Button*) {
                     CollabPopup::create(m_level, *collab)->show();
                 }
             );

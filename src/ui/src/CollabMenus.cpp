@@ -107,7 +107,7 @@ bool CollabLevelCell::init(GJGameLevel* level, float width) {
 
     auto lvlBtn = Button::createWithNode(
         ButtonSprite::create("View", cw::ui::font::gold, "GE_button_05.png"_gode, 0.875f),
-        [level](auto) {
+        [level](Button*) {
             CollabManagerPopup::create(level)->show();
         }
     );
