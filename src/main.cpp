@@ -38,7 +38,7 @@ namespace cw::lvlcollab {
                     CircleBaseColor::Green,
                     alt ? CircleBaseSize::MediumAlt : CircleBaseSize::Medium
                 ),
-                [](Button*) {
+                [](CCMenuItemSpriteExtra*) {
                     pushSceneWithLayer(CollabDashboard::create());
                 }
             );
