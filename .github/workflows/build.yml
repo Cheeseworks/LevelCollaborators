@@ -10,56 +10,36 @@ jobs:
     build:
         strategy:
             fail-fast: false
-
             matrix:
                 config:
-                    - name: Windows
-                      os: windows-latest
-                      build-type: RelWithDebInfo
+                    - target: win
+                    - target: macm1
+                    - target: macintel
+                    - target: ios
+                    - target: android32
+                    - target: android64
 
-                    - name: macOS
-                      os: macos-latest
-
-                    - name: iOS
-                      os: macos-latest
-                      target: iOS
-
-                    - name: Android32
-                      os: ubuntu-latest
-                      target: Android32
-
-                    - name: Android64
-                      os: ubuntu-latest
-                      target: Android64
-
-        name: ${{ matrix.config.name }}
-        runs-on: ${{ matrix.config.os }}
+        name: Build ${{ matrix.config.target }}
+        runs-on: ubuntu-latest
 
         steps:
             - uses: actions/checkout@v7
 
-            - name: Compile the mod
-              uses: geode-sdk/build-geode-mod@main
+            - uses: geode-sdk/build-geode-mod-docker@main
               with:
-                  combine: true
-                  export-pdb: true
-                  export-symbols: true
                   target: ${{ matrix.config.target }}
-                  build-config: ${{ matrix.config.build-type || 'Release'}}
-                  configure-args: "-DCW_TESTING=OFF"
+                  upload: true
                   sdk: nightly
 
-    package:
-        name: Package Builds
+    merge:
+        name: Merge
         runs-on: ubuntu-latest
         needs: ["build"]
 
         steps:
-            - uses: geode-sdk/build-geode-mod/combine@main
-              id: build
+            - uses: geode-sdk/build-geode-mod-docker/merge@main
               with:
-                  zstd: true
-                  optimize-pngs: true
+                  upload: true
 
             - uses: actions/upload-artifact@v7
               with:
@@ -69,7 +49,7 @@ jobs:
     nightly:
         name: Nightly Release
         runs-on: ubuntu-latest
-        needs: ["package"]
+        needs: ["merge"]
         permissions:
             contents: write
 
