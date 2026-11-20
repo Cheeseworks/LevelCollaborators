@@ -10,7 +10,7 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 project(LevelCollaborations VERSION 1.0.0)
 
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 set(CW_ENABLE_WEB ON CACHE BOOL "" FORCE)
 
@@ -24,6 +24,10 @@ target_sources(${PROJECT_NAME}
     PUBLIC FILE_SET cxx_modules TYPE CXX_MODULES FILES ${MODULES}
 )
 
+set_property(TARGET ${PROJECT_NAME}
+    PROPERTY CXX_SCAN_FOR_MODULES ON
+)
+
 target_include_directories(${PROJECT_NAME} PRIVATE src include)
 
 if(NOT DEFINED ENV{GEODE_SDK})
@@ -32,9 +36,7 @@ else()
     message(STATUS "Found Geode: $ENV{GEODE_SDK}")
 endif()
 
-set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 setup_geode_mod(${PROJECT_NAME})
 
