@@ -106,12 +106,12 @@ class $modify(LCLevelCell, LevelCell) {
         };
     }
 
-    // void onViewProfile(CCObject* sender) {
-    //     auto f = m_fields.self();
-    //     if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
+    void onViewProfile(CCObject* sender) {
+        auto f = m_fields.self();
+        if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
 
-    //     LevelCell::onViewProfile(sender);
-    // }
+        LevelCell::onViewProfile(sender);
+    }
 };
 
 class $modify(LCLevelInfoLayer, LevelInfoLayer) {
@@ -160,10 +160,10 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
         return true;
     }
 
-    // void onViewProfile(CCObject* sender) {
-    //     auto f = m_fields.self();
-    //     if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
+    void onViewProfile(CCObject* sender) {
+        auto f = m_fields.self();
+        if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
 
-    //     LevelInfoLayer::onViewProfile(sender);
-    // }
+        LevelInfoLayer::onViewProfile(sender);
+    }
 };
