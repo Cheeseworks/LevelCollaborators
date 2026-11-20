@@ -164,12 +164,12 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
         return true;
     }
 
-    void onViewProfile(CCObject* sender) {
-        auto f = m_fields.self();
-        if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
+    // void onViewProfile(CCObject* sender) {
+    //     auto f = m_fields.self();
+    //     if (f->collab.has_value()) return CollabPopup::create(m_level, *(*f->collab))->show();
 
-        LevelInfoLayer::onViewProfile(sender);
-    }
+    //     LevelInfoLayer::onViewProfile(sender);
+    // }
 };
 
 void fetch::getUserByUsername(std::string_view username, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {
