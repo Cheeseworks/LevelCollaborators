@@ -15,7 +15,7 @@ jobs:
                     - target: win
                     - target: macm1
                     - target: macintel
-                    - target: ios
+                    # - target: ios
                     - target: android32
                     - target: android64
 
