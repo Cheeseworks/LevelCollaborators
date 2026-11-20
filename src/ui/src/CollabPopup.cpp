@@ -42,7 +42,7 @@ bool CollabPopupCell::init(Collaborator const& collaber, bool owner, float width
 
     auto moreBtn = Button::createWithNode(
         ButtonSprite::create("More", cw::ui::font::big, owner ? "GJ_button_02.png" : "GJ_button_01.png"),
-        [id = collaber.getUserID()](Button*) {
+        [id = collaber.getUserID()](auto) {
             pushSceneWithLayer(LevelBrowserLayer::create(GJSearchObject::create(SearchType::UsersLevels, cw::fmtNum(id))));
         }
     );
