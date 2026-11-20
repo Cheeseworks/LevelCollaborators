@@ -1,10 +1,12 @@
-#pragma once
+module;
 
 #include <Geode/Geode.hpp>
 
 #include <Geode/ui/Style.hpp>
 
-namespace cw::lvlcollab {
+export module cw.lvlcollab.ui.CollabDashboard;
+
+export namespace cw::lvlcollab {
     enum class CollabMenuType : uint8_t {
         Invites,
         Manage,

@@ -2,8 +2,6 @@
 
 #include <ranges>
 
-#include <Util.h>
-
 #include <asp/iter.hpp>
 
 #include <Geode/Geode.hpp>
@@ -263,34 +261,4 @@ ZStringView cw::lvlcollab::getCollabTypeName(CollaboratorType type) noexcept {
         case CollaboratorType::Music: return "Music";
         case CollaboratorType::Verifier: return "Verifier";
     };
-}
-
-void fetch::getUserByUsername(std::string_view username, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {
-    auto req = web::WebRequest()
-                   .bodyString(fmt::format("secret=Wmfd2893gb7&str={}", username))
-                   .userAgent("");
-
-    async::spawn(
-        req.post("https://www.boomlings.com/database/getGJUsers20.php"),
-        [cb = std::move(callback)](web::WebResponse res) {
-            auto const resStr = res.string().unwrapOrDefault();
-
-            if (res.error()) {
-                log::error("Error getting user information: {}", resStr);
-                return cb(Err("An error occurred while fetching user information"));
-            };
-
-#ifdef CW_TESTING
-            log::debug("Received response: {}", resStr);
-#endif
-
-            auto dict = CCDictionary::create();
-            auto splits = asp::iter::split(resStr, ":")
-                              .mapCast<std::string>()
-                              .collect();
-
-            for (size_t i = 0; i + 1 < splits.size(); i += 2) dict->setObject(CCString::create(splits[i + 1]), splits[i]);
-            cb(Ok(GJUserScore::create(dict)));
-        }
-    );
 }

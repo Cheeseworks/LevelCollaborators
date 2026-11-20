@@ -1,10 +1,12 @@
-#pragma once
+module;
 
 #include <rhatt/base/Singleton.hpp>
 
 #include <Geode/Geode.hpp>
 
-namespace cw::lvlcollab {
+export module cw.lvlcollab.util.DelegateDirector;
+
+export namespace cw::lvlcollab {
     class DelegateDirector final : public base::Singleton<DelegateDirector>, public LevelManagerDelegate, public UserInfoDelegate {
         using LevelCallback = geode::Function<void(geode::Result<geode::Ref<GJGameLevel>>)>;
         using UserCallback = geode::Function<void(geode::Result<geode::Ref<GJUserScore>>)>;

@@ -1,17 +1,13 @@
-#pragma once
+module;
 
-#include <util/Macros.h>
+#include <cw.h>
 
-#include <API.h>
+export module cw.lvlcollab;
 
-#include <ui/Include.h>
-#include <util/Include.h>
+export import cw.lvlcollab.ui;
+export import cw.lvlcollab.util;
 
-#include <cue/Util.hpp>
-
-#include <Geode/Geode.hpp>
-
-namespace cw::lvlcollab {
+export namespace cw::lvlcollab {
     namespace manager {  // very wip
         void requestCollabUpsert(int levelID, Collaboration collab, geode::CopyableFunction<void(bool success, std::string const& message)>&& callback = nullptr);
     };

@@ -1,6 +1,6 @@
-#include "../CollabDashboard.hpp"
+module;
 
-#include <Util.h>
+#include <cw.h>
 
 #include <API.h>
 
@@ -11,6 +11,10 @@
 #include <Geode/Geode.hpp>
 
 #include <Geode/ui/Style.hpp>
+
+module cw.lvlcollab.ui.CollabDashboard;
+
+import cw.lvlcollab;
 
 using namespace geode::prelude;
 using namespace cw::lvlcollab;
@@ -251,7 +255,7 @@ bool CollabDashboard::init() {
                     "Cancel",
                     "OK",
                     [](auto, bool ok) {
-                        if (ok) web::openLinkInBrowser("https://www.dsc.gg/cheeseworks");
+                        if (ok) web::openLinkInBrowser("https://cwrk.cc/discord");
                     }
                 );
             },

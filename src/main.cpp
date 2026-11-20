@@ -1,6 +1,8 @@
-#include <API.h>
+module;
 
-#include <Util.h>
+#include <cw.h>
+
+#include <API.h>
 
 #include <rhatt/prelude.h>
 
@@ -14,6 +16,8 @@
 
 using namespace geode::prelude;
 using namespace cw::lvlcollab;
+
+module cw.lvlcollab;
 
 $on_mod(Loaded) {  // just for testing
     auto arcwf = Collaborator::create(7689052, 53843371, "ArcticWoof", CollaboratorIcon::create(290, IconType::Cube, 83, 12, 3, true), CollaboratorType::Decoration);
@@ -167,3 +171,33 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
         LevelInfoLayer::onViewProfile(sender);
     }
 };
+
+void fetch::getUserByUsername(std::string_view username, CopyableFunction<void(Result<GJUserScore*>)>&& callback) {
+    auto req = web::WebRequest()
+                   .bodyString(fmt::format("secret=Wmfd2893gb7&str={}", username))
+                   .userAgent("");
+
+    async::spawn(
+        req.post("https://www.boomlings.com/database/getGJUsers20.php"),
+        [cb = std::move(callback)](web::WebResponse res) {
+            auto const resStr = res.string().unwrapOrDefault();
+
+            if (res.error()) {
+                log::error("Error getting user information: {}", resStr);
+                return cb(Err("An error occurred while fetching user information"));
+            };
+
+#ifdef CW_TESTING
+            log::debug("Received response: {}", resStr);
+#endif
+
+            auto dict = CCDictionary::create();
+            auto splits = asp::iter::split(resStr, ":")
+                              .mapCast<std::string>()
+                              .collect();
+
+            for (size_t i = 0; i + 1 < splits.size(); i += 2) dict->setObject(CCString::create(splits[i + 1]), splits[i]);
+            cb(Ok(GJUserScore::create(dict)));
+        }
+    );
+}

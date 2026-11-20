@@ -1,6 +1,6 @@
-#include "../CollabPopup.hpp"
+module;
 
-#include <Util.h>
+#include <cw.h>
 
 #include <API.h>
 
@@ -9,6 +9,10 @@
 #include <cue/ListNode.hpp>
 
 #include <Geode/Geode.hpp>
+
+module cw.lvlcollab.ui.CollabPopup;
+
+import cw.lvlcollab;
 
 using namespace geode::prelude;
 using namespace cw::lvlcollab;

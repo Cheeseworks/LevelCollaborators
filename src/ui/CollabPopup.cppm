@@ -1,10 +1,12 @@
-#pragma once
+module;
 
 #include <API.h>
 
 #include <Geode/Geode.hpp>
 
-namespace cw::lvlcollab {
+export module cw.lvlcollab.ui.CollabPopup;
+
+export namespace cw::lvlcollab {
     class CollabPopupCell final : public cocos2d::CCNode {
     protected:
         bool init(Collaborator const& collaber, bool owner, float width);

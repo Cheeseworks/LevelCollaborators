@@ -1,10 +1,12 @@
 #include "../Collabs.hpp"
 
-#include <Util.h>
+#include <cw.h>
 
 #include <rhatt/prelude.h>
 
 #include <Geode/Geode.hpp>
+
+import cw.lvlcollab;
 
 using namespace geode::prelude;
 using namespace cw::lvlcollab;
