@@ -28,12 +28,12 @@ bool CollabPopupCell::init(Collaborator const& collaber, bool owner, float width
 
     addChildAtPosition(icon, Anchor::Left, { 25.0f, 0.0f });
 
-    auto name = cw::ui::createProfileBtn(collaber.getName(), collaber.getAccountID());
-    name->setScale(std::min(0.625f, name->getScaledContentWidth() / (getContentWidth() - 125.0f)));
+    auto name = cw::createProfileBtn(collaber.getName(), collaber.getAccountID());
+    limitNodeWidth(name, getContentWidth() - 125.0f, 0.675f, 0.125f);
 
     addChildAtPosition(name, Anchor::Left, { 50.0f + (name->getScaledContentWidth() / 2.0f), 7.5f });
 
-    auto role = Label::create(fmt::format("{}{}", owner ? "Publisher | " : "", getCollabTypeName(collaber.getType())), cw::ui::font::gold);
+    auto role = Label::create(fmt::format("{}{}", owner ? "Publisher | " : "", getCollabTypeName(collaber.getType())), cw::font::gold);
     role->setID("type-label");
     role->setAnchorPoint({ 0.0f, 0.5f });
     role->setScale(0.475f);
@@ -41,7 +41,7 @@ bool CollabPopupCell::init(Collaborator const& collaber, bool owner, float width
     addChildAtPosition(role, Anchor::Left, { 50.0f, -8.75f });
 
     auto moreBtn = Button::createWithNode(
-        ButtonSprite::create("More", cw::ui::font::big, owner ? "GJ_button_02.png" : "GJ_button_01.png"),
+        ButtonSprite::create("More", cw::font::big, owner ? "GJ_button_02.png" : "GJ_button_01.png"),
         [id = collaber.getUserID()](auto) {
             pushSceneWithLayer(LevelBrowserLayer::create(GJSearchObject::create(SearchType::UsersLevels, cw::fmtNum(id))));
         }
@@ -100,7 +100,7 @@ bool CollabPopup::init(GJGameLevel* level, Collaboration const& collab) {
 
     m_mainLayer->addChildAtPosition(list, Anchor::Center, { 0.0f, -10.0f });
 
-    cw::ui::addHelpButton(m_mainLayer, fmt::format("This is the <cg>collaborator list</c> for the level <cc>{}</c>. Feel free to <cy>check out everyone's creations</c>!", level->m_levelName));
+    cw::addHelpButton(m_mainLayer, fmt::format("This is the <cg>collaborator list</c> for the level <cc>{}</c>. Feel free to <cy>check out everyone's creations</c>!", level->m_levelName));
 
     return true;
 }

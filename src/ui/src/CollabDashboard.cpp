@@ -36,7 +36,7 @@ bool menu::DashboardInvites::init(CCSize const& size) {
     EmojiRegistry emojis;
     emojis.insert(U":sus:", "particle_318_001.png");
 
-    auto nothing = Label::create("No invites yet... :sus:", cw::ui::font::gold);
+    auto nothing = Label::create("No invites yet... :sus:", cw::font::gold);
     nothing->setID("nothing-yet-label");
     nothing->setScale(0.625f);
     nothing->setAlignment(Label::Alignment::Center);
@@ -138,7 +138,7 @@ bool menu::DashboardManage::init(CCSize const& size) {
 
     addChildAtPosition(m_loading, Anchor::Center);
 
-    m_nothingLabel = Label::create("You have no public levels available.", cw::ui::font::gold);
+    m_nothingLabel = Label::create("You have no public levels available.", cw::font::gold);
     m_nothingLabel->setID("nothing-yet-label");
     m_nothingLabel->setScale(0.625f);
     m_nothingLabel->setAlignment(Label::Alignment::Center);
@@ -213,7 +213,7 @@ bool CollabDashboard::init() {
 
     auto title = Button::createWithLabel(
         "Level Collaborations",
-        cw::ui::font::gold,
+        cw::font::gold,
         [](auto) {
             openInfoPopup(Mod::get());
         }
@@ -237,14 +237,14 @@ bool CollabDashboard::init() {
     addChildAtPosition(btnContainer, Anchor::BottomRight, { -12.5f, 12.5f }, false);
 
     auto btns = std::array{
-        cw::ui::LinkButton{
+        cw::LinkButton{
             "kofi-btn",
             "gift.png"_gode,
             [](auto) {
                 openSupportPopup(Mod::get());
             },
         },
-        cw::ui::LinkButton{
+        cw::LinkButton{
             "discord-btn",
             "gj_discordIcon_001.png",
             [](auto) {
@@ -370,7 +370,7 @@ bool CollabDashboard::init() {
 
     tabContainer->updateLayout();
 
-    cw::ui::addHelpButton(this, "This is your <cg>Level Collab dashboard</c>, you can <cy>manage your own level collaborations</c> or <cy>review invites from others</c>.", false, 0.875f, { -7.5f, -7.5f });
+    cw::addHelpButton(this, "This is your <cg>Level Collab dashboard</c>, you can <cy>manage your own level collaborations</c> or <cy>review invites from others</c>.", false, 0.875f, { -7.5f, -7.5f });
 
     switchMenu(CollabMenuType::Invites);
 

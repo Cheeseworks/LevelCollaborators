@@ -92,7 +92,7 @@ class $modify(LCLevelCell, LevelCell) {
 
             auto btn = Button::createWithLabel(
                 collab->getFormattedString(),
-                cw::ui::font::gold,
+                cw::font::gold,
                 [this, collab](auto) {
                     CollabPopup::create(m_level, *collab)->show();
                 }
@@ -143,7 +143,7 @@ class $modify(LCLevelInfoLayer, LevelInfoLayer) {
 
             auto btn = Button::createWithLabel(
                 collab->getFormattedString(),
-                cw::ui::font::gold,
+                cw::font::gold,
                 [this, collab](auto) {
                     CollabPopup::create(m_level, *collab)->show();
                 }

@@ -16,6 +16,14 @@ export namespace cw::lvlcollab {
     };
 
     class CollabManagerPopup final : public geode::Popup {
+    private:
+        geode::Ref<GJGameLevel> m_level = nullptr;
+        geode::LoadingSpinner* m_loading = nullptr;
+
+        geode::async::TaskHolder<Collaboration::Result> m_loadTask;
+
+        Collaboration::ServerResult loadCollab();
+
     protected:
         bool init(GJGameLevel* level);
 

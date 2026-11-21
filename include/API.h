@@ -59,7 +59,8 @@ namespace cw::lvlcollab {
     };
 
     struct Collaborator final {
-        using ServerResult = arc::Future<geode::Result<Collaborator>>;
+        using Result = geode::Result<Collaborator>;
+        using ServerResult = arc::Future<Result>;
 
     private:
         int m_accountID;
@@ -93,7 +94,8 @@ namespace cw::lvlcollab {
     };
 
     struct Collaboration final {
-        using ServerResult = arc::Future<geode::Result<Collaboration>>;
+        using Result = geode::Result<Collaboration>;
+        using ServerResult = arc::Future<Result>;
 
     private:
         uint64_t m_id = 0;

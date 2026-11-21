@@ -38,6 +38,17 @@ CollabCell* CollabCell::create(Collaboration const& collab, float width, bool in
     return nullptr;
 }
 
+Collaboration::ServerResult CollabManagerPopup::loadCollab() {
+    // pre server code
+
+    auto arcwf = Collaborator::create(7689052, 53843371, "ArcticWoof", CollaboratorIcon::create(290, IconType::Cube, 83, 12, 3, true), CollaboratorType::Decoration);
+
+    auto cwrks = Collaborator::create(6408873, 25777059, "Cheeseworks", CollaboratorIcon::create(28, IconType::Cube, 94, 98, 12, true), CollaboratorType::Gameplay);
+    auto eri = Collaborator::create(1941705, 10709102, "Eugene", CollaboratorIcon::create(370, IconType::Cube, 21, 3, 3, true), CollaboratorType::SpecialThanks);
+
+    co_return Ok(Collaboration::create(1, 104663075, "Seven Run", std::move(arcwf), { std::move(cwrks), std::move(eri) }));
+}
+
 bool CollabManagerPopup::init(GJGameLevel* level) {
     if (!Popup::init({ 430.0f, 275.0f }, "GE_square01.png"_gode)) return false;
 
@@ -52,12 +63,19 @@ bool CollabManagerPopup::init(GJGameLevel* level) {
 
     m_mainLayer->addChildAtPosition(forLabel, Anchor::Top, { 0.0f, -37.5f });
 
-    auto loading = LoadingSpinner::create(75.0f);
-    loading->setZOrder(9);
+    m_loading = LoadingSpinner::create(75.0f);
+    m_loading->setZOrder(9);
 
-    m_mainLayer->addChildAtPosition(loading, Anchor::Center);
+    m_mainLayer->addChildAtPosition(m_loading, Anchor::Center);
 
-    cw::ui::addHelpButton(m_mainLayer, fmt::format("This is the <cg>collaboration manager pop-up</c> for the level <cc>{}</c>. Manage the state of the collaboration for this level as you wish.", level->m_levelName));
+    m_loadTask.spawn(
+        loadCollab(),
+        [this](Collaboration::Result) {
+            m_loading->setVisible(false);
+        }
+    );
+
+    cw::addHelpButton(m_mainLayer, fmt::format("This is the <cg>collaboration manager pop-up</c> for the level <cc>{}</c>. Manage the state of the collaboration for this level as you wish.", level->m_levelName));
 
     return true;
 }
@@ -98,7 +116,7 @@ bool CollabLevelCell::init(GJGameLevel* level, float width) {
 
     addChildAtPosition(diff, Anchor::Left, { 20.0f, 0.0f });
 
-    auto name = Label::create(level->m_levelName, cw::ui::font::big);
+    auto name = Label::create(level->m_levelName, cw::font::big);
     name->setID("level-name-label");
     name->setAnchorPoint({ 0.0f, 0.5f });
     name->setLimitLabelWidth(getContentWidth() - 87.5f, 0.625f);
@@ -106,7 +124,7 @@ bool CollabLevelCell::init(GJGameLevel* level, float width) {
     addChildAtPosition(name, Anchor::Left, { 40.0f, 0.0f });
 
     auto lvlBtn = Button::createWithNode(
-        ButtonSprite::create("View", cw::ui::font::gold, "GE_button_05.png"_gode, 0.875f),
+        ButtonSprite::create("View", cw::font::gold, "GE_button_05.png"_gode, 0.875f),
         [level](auto) {
             CollabManagerPopup::create(level)->show();
         }
@@ -143,7 +161,7 @@ bool CollabInviteeCell::init(GJUserScore* user, std::optional<Collaboration> con
 
     addChildAtPosition(icon, Anchor::Left, { -20.0f, 0.0f });
 
-    auto name = cw::ui::createProfileBtn(user);
+    auto name = cw::createProfileBtn(user);
     name->setScale(std::min(0.625f, name->getScaledContentWidth() / (getContentWidth() - 125.0f)));
 
     addChildAtPosition(name, Anchor::Left, { 50.0f + (name->getScaledContentWidth() / 2.0f), 0.0f });
