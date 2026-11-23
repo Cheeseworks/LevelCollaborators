@@ -49,48 +49,6 @@ Collaboration::ServerResult CollabManagerPopup::loadCollab() {
     co_return Ok(Collaboration::create(1, 104663075, "Seven Run", std::move(arcwf), { std::move(cwrks), std::move(eri) }));
 }
 
-bool CollabManagerPopup::init(GJGameLevel* level) {
-    if (!Popup::init({ 430.0f, 275.0f }, "GE_square01.png"_gode)) return false;
-
-    setID("manager"_spr);
-    setTitle("Collaboration Manager");
-    setCloseButtonSpr(CircleButtonSprite::createWithSpriteFrameName("close.png"_gode, 0.875f, CircleBaseColor::DarkPurple), 0.825f);
-
-    auto forLabel = Label::createRich(fmt::format("for <cc>{}</c>", level->m_levelName), "bigFont.fnt");
-    forLabel->setID("for-level-label");
-    forLabel->setScale(m_title->getScale() * 0.625f);
-    forLabel->setZOrder(1);
-
-    m_mainLayer->addChildAtPosition(forLabel, Anchor::Top, { 0.0f, -37.5f });
-
-    m_loading = LoadingSpinner::create(75.0f);
-    m_loading->setZOrder(9);
-
-    m_mainLayer->addChildAtPosition(m_loading, Anchor::Center);
-
-    m_loadTask.spawn(
-        loadCollab(),
-        [this](Collaboration::Result) {
-            m_loading->setVisible(false);
-        }
-    );
-
-    cw::addHelpButton(m_mainLayer, fmt::format("This is the <cg>collaboration manager pop-up</c> for the level <cc>{}</c>. Manage the state of the collaboration for this level as you wish.", level->m_levelName));
-
-    return true;
-}
-
-CollabManagerPopup* CollabManagerPopup::create(GJGameLevel* level) {
-    auto ret = new CollabManagerPopup();
-    if (ret->init(level)) {
-        ret->autorelease();
-        return ret;
-    };
-
-    delete ret;
-    return nullptr;
-}
-
 bool CollabLevelCell::init(GJGameLevel* level, float width) {
     if (!CCNode::init()) return false;
 
@@ -176,6 +134,61 @@ bool CollabInviteeCell::init(GJUserScore* user, std::optional<Collaboration> con
 CollabInviteeCell* CollabInviteeCell::create(GJUserScore* user, std::optional<Collaboration> const& collab, float width) {
     auto ret = new CollabInviteeCell();
     if (ret->init(user, collab, width)) {
+        ret->autorelease();
+        return ret;
+    };
+
+    delete ret;
+    return nullptr;
+}
+
+bool CollabManagerPopup::init(GJGameLevel* level) {
+    if (!Popup::init({ 430.0f, 275.0f }, "GE_square01.png"_gode)) return false;
+
+    setID("manager"_spr);
+    setTitle("Collaboration Manager");
+    setCloseButtonSpr(CircleButtonSprite::createWithSpriteFrameName("close.png"_gode, 0.875f, CircleBaseColor::DarkPurple), 0.825f);
+
+    auto forLabel = Label::createRich(fmt::format("for <cc>{}</c>", level->m_levelName), "bigFont.fnt");
+    forLabel->setID("for-level-label");
+    forLabel->setScale(m_title->getScale() * 0.625f);
+    forLabel->setZOrder(1);
+
+    m_mainLayer->addChildAtPosition(forLabel, Anchor::Top, { 0.0f, -37.5f });
+
+    m_loading = LoadingSpinner::create(75.0f);
+    m_loading->setZOrder(9);
+
+    m_mainLayer->addChildAtPosition(m_loading, Anchor::Center);
+
+    m_friendList = ScrollLayer::create({ m_mainLayer->getContentWidth() * 0.425f, m_mainLayer->getContentHeight() - 50.0f });
+    m_friendList->setID("friends-list");
+    m_friendList->m_contentLayer->setLayout(ScrollLayer::createDefaultListLayout());
+
+    m_mainLayer->addChildAtPosition(m_friendList, Anchor::Left, { m_friendList->getScaledContentWidth() * 0.475f, 0.0f });
+
+    // TODO: change to async using delegate mgr
+    for (auto const& fren : CCArrayExt<GJUserScore>(GameLevelManager::sharedState()->getStoredUserList(UserListType::Friends))) {
+        m_friendList->m_contentLayer->addChild(CollabInviteeCell::create(fren, std::nullopt, m_friendList->getScaledContentWidth()));
+    };
+
+    m_friendList->m_contentLayer->updateLayout();
+
+    m_loadTask.spawn(
+        loadCollab(),
+        [this](Collaboration::Result) {
+            m_loading->setVisible(false);
+        }
+    );
+
+    cw::addHelpButton(m_mainLayer, fmt::format("This is the <cg>collaboration manager pop-up</c> for the level <cc>{}</c>. Manage the state of the collaboration for this level as you wish.", level->m_levelName));
+
+    return true;
+}
+
+CollabManagerPopup* CollabManagerPopup::create(GJGameLevel* level) {
+    auto ret = new CollabManagerPopup();
+    if (ret->init(level)) {
         ret->autorelease();
         return ret;
     };

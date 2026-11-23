@@ -113,6 +113,18 @@ void DelegateDirector::getUserInfoFailed(int id) {
     };
 }
 
+void DelegateDirector::getUserListFinished(cocos2d::CCArray* scores, UserListType type) {
+    glm->m_levelManagerDelegate = nullptr;
+}
+
+void DelegateDirector::getUserListFailed(UserListType type, GJErrorCode errorType) {
+    glm->m_levelManagerDelegate = nullptr;
+}
+
+void DelegateDirector::userListChanged(cocos2d::CCArray* scores, UserListType type) {
+    glm->m_levelManagerDelegate = nullptr;
+}
+
 void DelegateDirector::searchLevel(int levelID, LevelCallback callback) {
     auto glm = GameLevelManager::sharedState();
 
@@ -155,6 +167,19 @@ void DelegateDirector::searchUserLevels(int userID, int page, LevelListCallback 
 
     glm->m_levelManagerDelegate = this;
     glm->getOnlineLevels(obj);
+}
+
+void DelegateDirector::getUserList(UserListType type, UserListCallback callback) {
+    auto glm = GameLevelManager::sharedState();
+
+    m_userListCallbacks[type] = std::move(callback);
+
+#ifdef CW_TESTING
+    log::trace("Set user list callback with type {}", (int)type);
+#endif
+
+    glm->m_userListDelegate = this;
+    glm->getStoredUserList(type);
 }
 
 void DelegateDirector::searchUserByID(int accountID, UserCallback callback) {
