@@ -85,7 +85,7 @@ void menu::DashboardManage::loadLevelList(bool error) {
 }
 
 void menu::DashboardManage::requestNextBatch() {
-    DelegateDirector::get()->searchUserLevels(25777059, m_loadingPage, [self = WeakRef(this)](Result<CCArrayExt<GJGameLevel*>> res) {
+    cw::DelegateDirector::get()->searchUserLevels(25777059, m_loadingPage, [self = WeakRef(this)](Result<CCArrayExt<GJGameLevel*>> res) {
         if (auto s = self.lock()) {
             if (res.isErr()) {
                 log::error("Failed to search for user: {}", res.unwrapErr());

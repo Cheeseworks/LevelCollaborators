@@ -4,8 +4,6 @@ module;
 
 export module cw.lvlcollab.util;
 
-export import cw.lvlcollab.util.DelegateDirector;
-
 export namespace cw::lvlcollab {
     namespace ui {
         inline auto createPlayerIconFromScore(GJUserScore* user) {

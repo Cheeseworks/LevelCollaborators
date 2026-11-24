@@ -59,7 +59,7 @@ class $modify(LCMenuLayer, MenuLayer) {
         if (auto menu = getChildByID("bottom-menu")) ui::addCollabButton(menu);
 
         queueInMainThread([]() {
-            DelegateDirector::get()->searchUserByID(6408873, [](Result<GJUserScore*> res) {
+            cw::DelegateDirector::get()->searchUserByID(6408873, [](Result<GJUserScore*> res) {
                 if (res.isErr()) return log::error("Failed to search for user: {}", res.unwrapErr());
 
                 auto u = std::move(res).unwrap();
